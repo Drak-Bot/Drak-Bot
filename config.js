@@ -15,16 +15,16 @@ global.wait = 'ⓘ 𝐂𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨 ...';
 
 
 global.owner = [
-  ['393773842461', '𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲', true],
-  ['xxxxxxxxxx'],
+  ['27763845778', 'Death', true],
+  ['393512884684', 'Axtral', true],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx']
 ];
-global.mods = ['xxxxxxxxxx'];
-global.prems = ['xxxxxxxxxx', 'xxxxxxxxxx'];
+global.mods = ['27763845778'];
+global.prems = ['27763845778', '393512884684'];
 
 
 const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
