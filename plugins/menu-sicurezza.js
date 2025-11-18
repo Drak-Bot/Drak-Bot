@@ -31,9 +31,9 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     });
 };
 
-handler.help = ["menusicurezza"];
+handler.help = ["sicurezza"];
 handler.tags = ["menu"];
-handler.command = /^(menusicurezza)$/i;
+handler.command = /^(sicurezza)$/i;
 
 export default handler;
 
