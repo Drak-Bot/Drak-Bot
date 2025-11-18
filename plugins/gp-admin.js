@@ -18,7 +18,7 @@ const handler = async (m, { conn, participants, groupMetadata, args, isOwner, is
     const adminGruppo = participants.filter((p) => p.admin);
     const mentionList = adminGruppo.map(p => p.id);
     const messaggioUtente = args.join` `;
-    const testo = `ㅤㅤ⋆｡˚『 🔔 ╭ \`ADMINS\` ╯ 』˚｡⋆\n\n${mentionList.map((jid, index) => `『 *${index + 1}.* 』@${jid.split('@')[0]}`).join('\n')}\n\n『 🍥 』 \`Messaggio:\` » ${messaggioUtente}\n\n> Questo comando può essere eseguito solo se hai qualche problema o è successo qualcosa, se lo usi con altre intenzioni verrai *rimosso* dal gruppo.`.trim();
+    const testo = `ㅤㅤ⋆｡˚『 🔔 ╭ \`ADMINS\` ╯ 』˚｡⋆\n\n${mentionList.map((jid, index) => `『 *${index + 1}.* 』@${jid.split('@')[0]}`).join('\n')}\n\n『 🍥 』 \`Messaggio:\` » ${messaggioUtente}\n\n> Questo è il messaggio che un admin vi ha inviato leggetelo bene!!.`.trim();
 
     await conn.sendMessage(m.chat, {
         text: testo,
@@ -26,7 +26,7 @@ const handler = async (m, { conn, participants, groupMetadata, args, isOwner, is
             mentionedJid: mentionList,
             externalAdReply: {
                 title: groupMetadata.subject,
-                body: "『 🛎️ 』 invocando gli admin",
+                body: "『 🛎️ 』 invocando i King",
                 thumbnailUrl: foto,
                 mediaType: 1,
                 renderLargerThumbnail: false
