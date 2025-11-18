@@ -75,6 +75,6 @@ function generateMenuText(prefix, userId, groupId) {
 ${commandList.split('\n').map(line => `୧ ${line.trim()}`).join('\n')}
 ꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
 
-> © ${global.t('poweredBy', userId, groupId) || 'ᴘᴏᴡᴇʀᴇᴅ ʙʏ'} 𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲
+> © ${global.t('poweredBy', userId, groupId) || 'ᴘᴏᴡᴇʀᴇᴅ ʙʏ'} 𝔻𝕋ℍ-𝔹𝕆𝕋
 `.trim();
 }
