@@ -4,10 +4,10 @@ let handler = async (m, { conn, command, text }) => {
 
     // Determina il messaggio in base al livello
     let finalPhrase = width >= 70 
-        ? "🍾 Amico se hai bisogno di parlare io ci sono.." 
+        ? "🍾 𝐀𝐦𝐢𝐜𝐨 𝐬𝐞 𝐧𝐞 𝐯𝐮𝐨𝐢 𝐩𝐚𝐫𝐥𝐚𝐫𝐞 𝐜𝐢 𝐬𝐨𝐧𝐨..." 
         : width >= 30 
-        ? "🥂 Beve in modo responsabile, o quasi..." 
-        : "🚰 Totalmente sobrio, niente sbronze per oggi!";
+        ? "🥂 𝐁𝐞𝐯𝐞 𝐢𝐧 𝐦𝐨𝐝𝐨 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐚𝐛𝐢𝐥𝐞, 𝐨 𝐪𝐮𝐬𝐢..." 
+        : "🚰 𝐍𝐨𝐧 𝐛𝐞𝐯𝐞 𝐦𝐚𝐢 𝐬𝐭𝐨 𝐧𝐞𝐠𝐫𝐨";
 
     // Creazione del messaggio
     let message = `
@@ -26,7 +26,7 @@ ${finalPhrase}
             forwardingScore: 1,
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363259442839354@newsletter',
+                newsletterJid: '',
                 serverMessageId: '',
                 newsletterName: `ChatUnity` // Utilizzo della variabile botName
             },
