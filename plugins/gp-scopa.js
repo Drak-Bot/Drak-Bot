@@ -8,7 +8,7 @@ let handler = async (m, { conn, text }) => {
     let sender = m.sender.split('@')[0];
 
 
-    let message = `*🔥 @${sender} sta scopando con @${target}... 💋*`;
+    let message = `*🔥 @${sender} sta facendo dei figli con @${target}... 💋*`;
 
 
     await conn.reply(m.chat, message, m, { mentions: [user, m.sender] });
