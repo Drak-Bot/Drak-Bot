@@ -3,9 +3,9 @@ const handler = async (m, { conn, args }) => {
     
     await conn.sendMessage(m.chat, {
   text: `Link del gruppo: *${metadata.subject}*`,
-  footer: 'Clicca il bottone per copiare il link negli appunti',
+  footer: 'Clicca sta merda di bottone e copiati sto link',
   interactiveButtons: [
-    { name: 'cta_copy', buttonParamsJson: JSON.stringify({ display_text: 'Copia', copy_code: 'https://chat.whatsapp.com/' + await conn.groupInviteCode(m.chat) }) }
+    { name: 'cta_copy', buttonParamsJson: JSON.stringify({ display_text: '𝐓𝐞𝐬𝐭𝐚 𝐝𝐢 𝐜𝐚𝐳𝐳𝐨', copy_code: 'https://chat.whatsapp.com/' + await conn.groupInviteCode(m.chat) }) }
   ],
 }, { quoted: m })
 }
