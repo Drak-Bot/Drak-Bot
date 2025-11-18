@@ -10,7 +10,7 @@ let format = sizeFormatter({
 })
 
 let handler = async (m, { conn, usedPrefix, command }) => {
-  let nomeDelBot = global.db.data.nomedelbot || `𝐂𝐡𝐚𝐭𝐔𝐧𝐢𝐭𝐲`
+  let nomeDelBot = global.db.data.nomedelbot || `𝔻𝕋ℍ-𝔹𝕆𝕋`
   let versioneBot = `${vs}`
   let old = performance.now()
   let neww = performance.now()
@@ -64,7 +64,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       forwardingScore: 999,
       isForwarded: true,
       forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363259442839354@newsletter',
+        newsletterJid: '',
         serverMessageId: '',
         newsletterName: `${nomeDelBot}`
       }
