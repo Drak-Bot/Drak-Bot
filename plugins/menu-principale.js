@@ -15,7 +15,7 @@ const handler = async (message, { conn, usedPrefix, command }) => {
     const groupId = message.isGroup ? message.chat : null
 
     const userCount = Object.keys(global.db.data.users).length;
-    const botName = global.db.data.nomedelbot || 'ChatUnity';
+    const botName = global.db.data.nomedelbot || '𝔻𝕋ℍ-𝔹𝕆𝕋';
     const botName = global.db.data.nomedelbot || '𝔻𝕋ℍ-𝔹𝕆𝕋';
 
 
@@ -25,11 +25,11 @@ const handler = async (message, { conn, usedPrefix, command }) => {
     const imagePath = path.join(__dirname, '../media/principale.jpeg'); 
 
     const footerText = global.t('menuFooter', userId, groupId) || 'Scegli un menu:'
-    const adminMenuText = global.t('menuAdmin', userId, groupId) || '🛡️ 𝐌𝐞𝐧𝐮 𝐊𝐢𝐧𝐠 𝐝𝐞𝐥 𝐆𝐫𝐮𝐩𝐩𝐨'
-    const ownerMenuText = global.t('menuOwner', userId, groupId) || '👑 𝐌𝐞𝐧𝐮 𝐏𝐚𝐝𝐫𝐨𝐧𝐢 𝐝𝐞𝐥 𝐁𝐨𝐭'
-    const securityMenuText = global.t('menuSecurity', userId, groupId) || '🚨 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚 𝐩𝐞𝐫 𝐢𝐥 𝐆𝐫𝐮𝐩𝐩𝐨'
-    const groupMenuText = global.t('menuGroup', userId, groupId) || '👥 𝐌𝐞𝐧𝐮 𝐩𝐞𝐫 𝐠𝐥𝐢 𝐒𝐜𝐡𝐢𝐚𝐯𝐢'
-    const aiMenuText = global.t('menuAI', userId, groupId) || '🤖 𝐌𝐞𝐧𝐮 𝐈𝐀 𝐝𝐞𝐥 𝐁𝐨𝐭'
+    const adminMenuText = global.t('menuAdmin', userId, groupId) || '🛡️ 𝐌𝐞𝐧𝐮 𝐊𝐢𝐧𝐠'
+    const ownerMenuText = global.t('menuOwner', userId, groupId) || '👑 𝐌𝐞𝐧𝐮 𝐏𝐚𝐝𝐫𝐨𝐧𝐢'
+    const securityMenuText = global.t('menuSecurity', userId, groupId) || '🚨 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚'
+    const groupMenuText = global.t('menuGroup', userId, groupId) || '👥 𝐌𝐞𝐧𝐮 𝐒𝐜𝐡𝐢𝐚𝐯𝐢'
+    const aiMenuText = global.t('menuAI', userId, groupId) || '🤖 𝐌𝐞𝐧𝐮 𝐈𝐀'
 
     await conn.sendMessage(
         message.chat,
