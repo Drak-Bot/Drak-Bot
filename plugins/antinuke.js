@@ -46,7 +46,7 @@ const plugin = {
         await conn.groupParticipantsUpdate(chatId, toDemote, "demote").catch(() => null);
         await conn.groupSettingUpdate(chatId, "announcement").catch(() => null);
         await conn.sendMessage(chatId, {
-          text: `> 🚨 𝐀𝐋𝐋𝐀𝐑𝐌𝐄 𝐒𝐕𝐓 🚨\n\n@${actor.split("@")[0]} ha tentato di modificare privilegi o rimuovere utenti non autorizzato.\n\n🔒 Sicurezza attivata 🔒`,
+          text: `> 🚨 𝐀𝐋𝐋𝐀𝐑𝐌𝐄 𝐒𝐕𝐓 🚨\n\n@${actor.split("@")[0]} Hai provato a nukkare? Bene ora te ne pentirai.\n\n🔒 Sicurezza attivata 🔒`,
           mentions: [actor, ...(target ? [conn.decodeJid(target)] : [])].map(j => j + "@s.whatsapp.net"),
         }).catch(() => null);
       }
@@ -60,3 +60,4 @@ const plugin = {
 }
 
 export default plugin;
+
