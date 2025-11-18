@@ -7,7 +7,7 @@ let handler = async (m, { conn, command }) => {
             forwardingScore: 99,
             isForwarded: true,
             forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363259442839354@newsletter',
+                newsletterJid: '',
                 serverMessageId: '',
                 newsletterName: global.db.data.nomedelbot || `𝔻𝕋ℍ-𝔹𝕆𝕋`
             }
