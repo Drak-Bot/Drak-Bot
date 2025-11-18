@@ -45,7 +45,7 @@ END:VCARD`
         participant: "0@s.whatsapp.net"
     };
 
-    conn.reply(message.chat, "✅ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐨𝐭𝐫𝐚' 𝐞𝐬𝐞𝐠𝐮𝐢𝐫𝐞 𝐝𝐢 𝐧𝐮𝐨𝐯𝐨 𝐢 𝐜𝐨𝐦𝐚𝐧𝐝𝐢", fakeMsg);
+    conn.reply(message.chat, "✅ 𝐂𝐨𝐧𝐭𝐞𝐧𝐭𝐨 𝐨𝐫𝐚? 𝐮𝐧𝐨 𝐝𝐞𝐢 𝐦𝐢𝐞𝐢 𝐩𝐚𝐝𝐫𝐨𝐧𝐢 𝐭𝐢 𝐡𝐚 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐨 𝐥'𝐮𝐭𝐢𝐥𝐢𝐳𝐳𝐨 𝐝𝐞𝐥 𝐛𝐨𝐭", fakeMsg);
 };
 
 handler.command = /^unbanuser|unban$/i;
