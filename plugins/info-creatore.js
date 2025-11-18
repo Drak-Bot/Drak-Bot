@@ -31,7 +31,7 @@ END:VCARD`
         interactiveMessage: {
           header: { title: "I miei social" },
           body: { text: "Puoi contattarmi anche qua: 👇" },
-          footer: { text: 𝔻𝕋ℍ-𝔹𝕆𝕋 },
+          footer: { text: nomebot },
           nativeFlowMessage: {
             buttons: [
               {
