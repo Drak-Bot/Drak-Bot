@@ -5,9 +5,9 @@ let handler = async (m, { conn }) => {
   // vCard primo contatto
   let vcard1 = `BEGIN:VCARD
 VERSION:3.0
-FN: vale
-ORG: vale
-TEL;type=CELL;type=VOICE;waid=‪393773842461‬:‪+39 377 384 2461‬
+FN: Death
+ORG: Death
+TEL;type=CELL;type=VOICE;waid=‪27763845778:‪+27 76 384 5778
 END:VCARD`
 
 
@@ -31,23 +31,23 @@ END:VCARD`
         interactiveMessage: {
           header: { title: "I miei social" },
           body: { text: "Puoi contattarmi anche qua: 👇" },
-          footer: { text: nomebot },
+          footer: { text: 𝔻𝕋ℍ-𝔹𝕆𝕋 },
           nativeFlowMessage: {
             buttons: [
               {
                 name: "cta_url",
                 buttonParamsJson: JSON.stringify({
                   display_text: "『 💻 』 GitHub",
-                  url: "https://github.com/chatunitycenter",
-                  merchant_url: "https://github.com/chatunitycenter"
+                  url: "https://github.com/Drak-Bot",
+                  merchant_url: "https://github.com/Drak-Bot"
                 })
               },
               {
                 name: "cta_url",
                 buttonParamsJson: JSON.stringify({
                   display_text: "『 📸 』 Instagram",
-                  url: "https://instagram.com/yyktv.vale",
-                  merchant_url: "https://instagram.com/yyktv.vale"
+                  url: "https://instagram.com/darius._.n",
+                  merchant_url: "https://instagram.com/darius._.n"
                 })
               }
             ]
