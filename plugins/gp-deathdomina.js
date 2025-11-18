@@ -23,6 +23,6 @@ let handler = async (m, { conn, participants, groupMetadata, isAdmin, isBotAdmin
 
 handler.help = ['deathdomina']
 handler.tags = ['group']
-handler.command = /^dominadeath$/i
+handler.command = /^deathdomina$/i
 
 export default handler
