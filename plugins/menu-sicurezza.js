@@ -24,11 +24,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         caption: menuText,
         footer: global.t('chooseMenu', userId, groupId) || 'Scegli un menu:',
         buttons: [
-            { buttonId: `${usedPrefix}menu`, buttonText: { displayText: global.t('mainMenuButton', userId, groupId) || "🏠 Menu Principale" }, type: 1 },
-            { buttonId: `${usedPrefix}attiva antinuke`, buttonText: { displayText: '🟢 Attiva AntiNuke' }, type: 1 },
-            { buttonId: `${usedPrefix}disabilita antinuke`, buttonText: { displayText: '🔴 Disattiva AntiNuke' }, type: 1 },
-            { buttonId: `${usedPrefix}conclave status`, buttonText: { displayText: '🔎 Stato Conclave' }, type: 1 },
-            { buttonId: `${usedPrefix}conclave now`, buttonText: { displayText: '⚠️ Esegui Conclave' }, type: 1 }
+            { buttonId: `${usedPrefix}menu`, buttonText: { displayText: global.t('mainMenuButton', userId, groupId) || "🏠 Menu Principale" }, type: 1 }
         ],
         viewOnce: true,
         headerType: 4
@@ -76,8 +72,8 @@ function generateMenuText(chat, userId, groupId) {
 
     const howToUse = `
 *ℹ ${global.t('howToUse', userId, groupId) || '𝐂𝐎𝐌𝐄 𝐒𝐈 𝐔𝐒𝐀'}*
-*🟢 ${global.t('activateFunction', userId, groupId) || 'attiva [funzione]'}*
-*🔴 ${global.t('disableFunction', userId, groupId) || 'disabilita [funzione]'}*
+*🟢 ${global.t('activateFunction', userId, groupId) || '1 [funzione]'}*
+*🔴 ${global.t('disableFunction', userId, groupId) || '0 [funzione]'}*
     `.trim();
 
     const statusList = Object.entries(functions)
