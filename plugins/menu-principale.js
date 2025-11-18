@@ -24,11 +24,11 @@ const handler = async (message, { conn, usedPrefix, command }) => {
     const imagePath = path.join(__dirname, '../media/principale.jpeg'); 
     
     const footerText = global.t('menuFooter', userId, groupId) || 'Scegli un menu:'
-    const adminMenuText = global.t('menuAdmin', userId, groupId) || '🛡️ Menu Admin'
-    const ownerMenuText = global.t('menuOwner', userId, groupId) || '👑 Menu Owner'
-    const securityMenuText = global.t('menuSecurity', userId, groupId) || '🚨 Menu Sicurezza'
-    const groupMenuText = global.t('menuGroup', userId, groupId) || '👥 Menu Gruppo'
-    const aiMenuText = global.t('menuAI', userId, groupId) || '🤖 Menu IA'
+    const adminMenuText = global.t('menuAdmin', userId, groupId) || '🛡️ Menu King Gruppo'
+    const ownerMenuText = global.t('menuOwner', userId, groupId) || '👑 Menu Padroni Bot'
+    const securityMenuText = global.t('menuSecurity', userId, groupId) || '🚨 Menu Sicurezza Gruppo'
+    const groupMenuText = global.t('menuGroup', userId, groupId) || '👥 Menu Gruppo '
+    const aiMenuText = global.t('menuAI', userId, groupId) || '🤖 Menu IA Bot'
     
     await conn.sendMessage(
         message.chat,
@@ -61,17 +61,7 @@ export default handler;
 function generateMenuText(prefix, botName, userCount, userId, groupId) {
     const menuTitle = global.t('mainMenuTitle', userId, groupId) || '𝑴𝑬𝑵𝑼 𝑫𝑬𝑳 𝑩𝑶𝑻'
     const staffText = global.t('staffCommand', userId, groupId) || 'staff'
-    const hegemoniaText = global.t('hegemoniaCommand', userId, groupId) || 'egemonia'
-    const candidatesText = global.t('candidatesCommand', userId, groupId) || 'candidati'
-    const installText = global.t('installCommand', userId, groupId) || 'installa'
-    const guideText = global.t('guideCommand', userId, groupId) || 'guida'
-    const channelsText = global.t('channelsCommand', userId, groupId) || 'canali'
-    const systemText = global.t('systemCommand', userId, groupId) || 'sistema'
-    const faqText = global.t('faqCommand', userId, groupId) || 'FAQ'
     const pingText = global.t('pingCommand', userId, groupId) || 'ping'
-    const reportText = global.t('reportCommand', userId, groupId) || 'segnala'
-    const suggestText = global.t('suggestCommand', userId, groupId) || 'consiglia'
-    const newsText = global.t('newsCommand', userId, groupId) || 'novità'
     const versionText = global.t('versionLabel', userId, groupId) || '𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬'
     const collabText = global.t('collabLabel', userId, groupId) || '𝐂𝐎𝐋𝐋𝐀𝐁: 𝐎𝐍𝐄 𝐏𝐈𝐄𝐂𝐄'
     const usersText = global.t('usersLabel', userId, groupId) || '𝐔𝐓𝐄𝐍𝐓𝐈'
