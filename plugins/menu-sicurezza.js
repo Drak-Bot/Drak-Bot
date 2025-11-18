@@ -83,16 +83,3 @@ function generateMenuText(chat, userId, groupId) {
     return `
 ⋆ ︵︵ ★ ${menuTitle} ★ ︵︵ ⋆
 
-${howToUse}
-
-꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
-${statusList.split('\n').map(line => `୧ ${line}`).join('\n')}
-꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
-
-╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
-  ୧・*${versionText}:* ${vs}
-  ୧・𝐂𝐎𝐋𝐋𝐀𝐁: ${collabText}
-  ୧・*${supportText}:* (chiama 𝕯𝖊ⱥ𝖙𝖍)
-╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
-`.trim();
-}
