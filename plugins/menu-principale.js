@@ -1,102 +1,31 @@
-import { performance } from 'perf_hooks';
-import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-import '../lib/language.js';
+// plugin-menu.js
 
+let handler = async (m, { conn }) => {
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let menu = `
+🤖 *ᴍᴇɴᴜ ʙᴏᴛ* 🤖
 
+𝔽𝕠𝕦𝕟𝕕𝕖𝕣 :
+➠ 𝕯𝖊ⱥ𝖙𝖍 💀
 
-const handler = async (message, { conn, usedPrefix, command }) => {
-    const userId = message.sender
-    const groupId = message.isGroup ? message.chat : null
+ℂ𝕠-𝔽𝕠𝕦𝕟𝕕𝕖𝕣 :
+➠ 𝐁𝐋𝐎𝐎𝐃#ᵛᵉˡᶦᵗʰ 🩸
 
-    const userCount = Object.keys(global.db.data.users).length;
-    const botName = global.db.data.nomedelbot || '𝔻𝕋ℍ-𝔹𝕆𝕋';
-    const botName = global.db.data.nomedelbot || '𝔻𝕋ℍ-𝔹𝕆𝕋';
+-------------------------------------------------------------
 
+➠ ari 👩🏻‍🦳
+➠ foxa 🦊
+➠ tiamo ❤️
+➠ pokeball 🏐
+➠ bestemmiometro on/off 🤬
+➠ ping 🚀
+➠ staff 🤖
+➠ creatore 👑
+`
 
-    const menuText = generateMenuText(usedPrefix, botName, userCount, userId, groupId);
+await conn.reply(m.chat, menu, m)
 
-
-    const imagePath = path.join(__dirname, '../media/principale.jpeg'); 
-
-    const footerText = global.t('menuFooter', userId, groupId) || 'Scegli un menu:'
-    const adminMenuText = global.t('menuAdmin', userId, groupId) || '🛡️ 𝐌𝐞𝐧𝐮 𝐊𝐢𝐧𝐠'
-    const ownerMenuText = global.t('menuOwner', userId, groupId) || '👑 𝐌𝐞𝐧𝐮 𝐏𝐚𝐝𝐫𝐨𝐧𝐢'
-    const securityMenuText = global.t('menuSecurity', userId, groupId) || '🚨 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚'
-    const groupMenuText = global.t('menuGroup', userId, groupId) || '👥 𝐌𝐞𝐧𝐮 𝐒𝐜𝐡𝐢𝐚𝐯𝐢'
-    const aiMenuText = global.t('menuAI', userId, groupId) || '🤖 𝐌𝐞𝐧𝐮 𝐈𝐀'
-
-    await conn.sendMessage(
-        message.chat,
-        {
-            image: { url: imagePath },
-            caption: menuText,
-            footer: footerText,
-            buttons: [
-                { buttonId: `${usedPrefix}menuadmin`, buttonText: { displayText: adminMenuText }, type: 1 },
-                { buttonId: `${usedPrefix}menuowner`, buttonText: { displayText: ownerMenuText }, type: 1 },
-                { buttonId: `${usedPrefix}menusicurezza`, buttonText: { displayText: securityMenuText }, type: 1 },
-                { buttonId: `${usedPrefix}menugruppo`, buttonText: { displayText: groupMenuText }, type: 1 },
-                { buttonId: `${usedPrefix}menuia`, buttonText: { displayText: aiMenuText }, type: 1 }
-            ],
-            viewOnce: true,
-            headerType: 4
-        }
-    );
-};
-
-
-handler.help = ['menu'];
-handler.tags = ['menu'];
-handler.command = /^(menu|comandi)$/i;
-
-
-export default handler;
-
-
-function generateMenuText(prefix, botName, userCount, userId, groupId) {
-    const menuTitle = global.t('mainMenuTitle', userId, groupId) || '𝑴𝑬𝑵𝑼 𝑫𝑬𝑳 𝑩𝑶𝑻'
-    const staffText = global.t('staffCommand', userId, groupId) || 'staff'
-    const hegemoniaText = global.t('hegemoniaCommand', userId, groupId) || 'egemonia'
-    const candidatesText = global.t('candidatesCommand', userId, groupId) || 'candidati'
-    const installText = global.t('installCommand', userId, groupId) || 'installa'
-    const guideText = global.t('guideCommand', userId, groupId) || 'guida'
-    const channelsText = global.t('channelsCommand', userId, groupId) || 'canali'
-    const systemText = global.t('systemCommand', userId, groupId) || 'sistema'
-    const faqText = global.t('faqCommand', userId, groupId) || 'FAQ'
-    const pingText = global.t('pingCommand', userId, groupId) || 'ping'
-    const reportText = global.t('reportCommand', userId, groupId) || 'segnala'
-    const suggestText = global.t('suggestCommand', userId, groupId) || 'consiglia'
-    const newsText = global.t('newsCommand', userId, groupId) || 'novità'
-    const versionText = global.t('versionLabel', userId, groupId) || '𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬'
-    const collabText = global.t('collabLabel', userId, groupId) || '𝐂𝐎𝐋𝐋𝐀𝐁: 𝐎𝐍𝐄 𝐏𝐈𝐄𝐂𝐄'
-    const usersText = global.t('usersLabel', userId, groupId) || '𝐔𝐓𝐄𝐍𝐓𝐈'
-
-    return `
-⋆ ︵★ ${menuTitle} ★︵ ⋆
-୧ 👑 ୭ *${prefix}${staffText}*
-୧ 👑 ୭ *${prefix}${hegemoniaText}*
-୧ 📜 ୭ *${prefix}${candidatesText}*
-୧ 📥 ୭ *${prefix}${installText}*
-୧ 📖 ୭ *${prefix}${guideText}*
-୧ 📝 ୭ *${prefix}${channelsText}* 
-୧ ⚙️ ୭ *${prefix}${systemText}*
-୧ ❓ ୭ *${prefix}${faqText}*
-୧ 🚀 ୭ *${prefix}${pingText}*
-୧ 📝 ୭ *${prefix}${reportText}* 
-୧ 💡 ୭ *${prefix}${suggestText}* 
-୧ 🆕 ୭ *${prefix}${newsText}*
-୧ 🤖 ୭ *${prefix}chatunity*
-୧ 🗣️ ୭ *${prefix}gruppi*
-╰♡꒷ ๑ ⋆˚₊⋆──ʚ˚ɞ──⋆˚₊⋆ ๑ ⪩
-  ୧・*${versionText}:* ${vs}
-  ୧・𝐂𝐎𝐋𝐋𝐀𝐁: ${collab}
-  ୧・${usersText}: ${userCount}
-╰♡꒷ ๑ ⋆˚₊⋆──ʚ˚ɞ──⋆˚₊⋆ ๑ ⪩
-`.trim();
 }
+
+handler.command = /^menu$/i
+export default handler
