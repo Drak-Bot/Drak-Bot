@@ -1,51 +1,29 @@
-import os from 'os'
+let handler = async (m, { conn }) => {
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-    let target
-
-    // ——————————————————————————————
-    // 1️⃣ Se rispondi a un messaggio
-    // ——————————————————————————————
-    if (m.quoted) {
-        target = m.quoted.sender
+    if (!m.quoted) {
+        return m.reply("❌ *Devi rispondere ad un messaggio per fare il check!*");
     }
 
-    // ——————————————————————————————
-    // 2️⃣ Se menzioni un utente
-    // ——————————————————————————————
-    else if (m.mentionedJid && m.mentionedJid.length > 0) {
-        target = m.mentionedJid[0]
-    }
+    let target = m.quoted.sender;
+    let device = m.quoted.device || "unknown";
 
-    // ——————————————————————————————
-    // 3️⃣ Se nessun utente è selezionato
-    // ——————————————————————————————
-    if (!target) {
-        return m.reply(`❌ *Devi menzionare un utente o rispondere a un messaggio*\n\nEsempi:\n${usedPrefix}check @utente\n${usedPrefix}check (in risposta)`);
-    }
+    let tipo = "Sconosciuto";
 
-    // ——————————————————————————————
-    // 4️⃣ Info dispositivo
-    // ——————————————————————————————
-    let info = conn.userAgent || "Sconosciuto"
+    device = device.toString().toLowerCase();
 
-    let device = "Sconosciuto"
+    if (device.includes("android")) tipo = "📱 Android";
+    else if (device.includes("ios") || device.includes("iphone")) tipo = "📱 iPhone";
+    else if (device.includes("web")) tipo = "🖥️ Web WhatsApp";
+    else if (device.includes("desktop")) tipo = "💻 PC Desktop";
 
-    info = info.toLowerCase()
+    m.reply(`🔍 *Analisi dispositivo*\n\n👤 Utente: @${target.split("@")[0]}\n📱 Dispositivo: *${tipo}*`, {
+        mentions: [target]
+    });
 
-    if (info.includes("android")) device = "📱 Android"
-    if (info.includes("iphone") || info.includes("ios")) device = "📱 iPhone"
-    if (info.includes("windows")) device = "🖥️ Windows"
-    if (info.includes("mac")) device = "💻 MacOS"
+};
 
-    // ——————————————————————————————
-    // 5️⃣ Risposta finale
-    // ——————————————————————————————
-    m.reply(`🔍 *Analisi del dispositivo*\n\n👤 Utente: @${target.split('@')[0]}\n📱 Dispositivo: *${device}*\n\n⚡ *Check completato!*`, { mentions: [target] })
-}
+handler.help = ['check'];
+handler.tags = ['info'];
+handler.command = /^check$/i;
 
-handler.help = ['check @user']
-handler.tags = ['info']
-handler.command = /^check$/i
-
-export default handler
+export default handler;
