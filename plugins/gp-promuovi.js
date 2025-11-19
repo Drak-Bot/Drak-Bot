@@ -1,18 +1,32 @@
-// plugin-promuovi.js
+let handler = async (m, { conn }) => {
+    if (!m.isGroup) throw '❌ Questo comando funziona solo nei gruppi.';
 
-let handler = async (m, { conn, args }) => {
-    if (!m.isGroup) throw '❌ Questo comando funziona solo nei gruppi.'
-    if (!m.isAdmin) throw '❌ Solo gli admin possono usare questo comando.'
-    if (!m.mentionedJid[0]) throw '📌 Tagga la persona da promuovere.'
+    // Prendo metadata gruppo
+    let group = await conn.groupMetadata(m.chat);
+    let admins = group.participants
+        .filter(u => u.admin)
+        .map(u => u.id);
 
-    let user = m.mentionedJid[0]
+    // Controllo se il mittente è admin
+    if (!admins.includes(m.sender))
+        throw '❌ Solo gli admin possono usare questo comando.';
 
-    await conn.groupParticipantsUpdate(m.chat, [user], 'promote')
+    // Tag obbligatorio
+    let user = m.mentionedJid[0];
+    if (!user) throw '📌 Tagga qualcuno da promuovere.';
 
-    let msg = `@${m.sender.split('@')[0]} 𝐇𝐚 𝐝𝐚𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 @${user.split('@')[0]}`
+    // Promozione
+    await conn.groupParticipantsUpdate(m.chat, [user], 'promote');
 
-    await conn.sendMessage(m.chat, { text: msg, mentions: [m.sender, user] }, { quoted: m })
-}
+    // Messaggio finale
+    let msg = `@${m.sender.split('@')[0]} 𝐇𝐚 𝐝𝐚𝐭𝐨 𝐢 𝐩𝐨𝐭𝐞𝐫𝐢 𝐚 @${user.split('@')[0]}`;
 
-handler.command = /^(promuovi|p)$/i
-export default handler
+    await conn.sendMessage(
+        m.chat,
+        { text: msg, mentions: [m.sender, user] },
+        { quoted: m }
+    );
+};
+
+handler.command = /^(promuovi|p)$/i;
+export default handler;
