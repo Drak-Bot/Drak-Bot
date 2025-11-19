@@ -347,7 +347,7 @@ handler.before = async (m, { conn }) => {
 ┃ 💰 *Saldo attuale:* ${global.db.data.users[m.sender].limit} UnityCoins
 ╰━━━━━━━━━━━━━━━━╯
 
-> \`vare ✧ bot\``
+> \`𝔻𝕋ℍ-𝔹𝕆𝕋\``
 
         await conn.reply(chat, congratsMessage, m)
         delete global.bandieraGame[chat]
