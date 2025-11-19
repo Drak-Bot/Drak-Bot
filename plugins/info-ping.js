@@ -1,5 +1,5 @@
 let handler = async (m, { conn }) => {
-    // Funzione per decorare i font
+    // Funzione per font decorativo
     let fancyFont = (text) => {
         const chars = {
             "A":"𝓐","B":"𝓑","C":"𝓒","D":"𝓓","E":"𝓔","F":"𝓕","G":"𝓖","H":"𝓗","I":"𝓘","J":"𝓙",
@@ -12,12 +12,20 @@ let handler = async (m, { conn }) => {
         return text.split("").map(l => chars[l] || l).join("");
     }
 
+    // Ping reale
     let start = new Date().getTime();
     let temp = await conn.sendMessage(m.chat, { text: "⏳ 𝙿𝙸𝙽𝙶𝙸𝙽𝙶..." }, { quoted: m });
     let end = new Date().getTime();
     let ping = end - start;
 
-    // Decorazioni ASCII
+    // Calcolo uptime
+    let totalSeconds = process.uptime();
+    let hours = Math.floor(totalSeconds / 3600);
+    let minutes = Math.floor((totalSeconds % 3600) / 60);
+    let seconds = Math.floor(totalSeconds % 60);
+    let uptime = `${hours}h ${minutes}m ${seconds}s`;
+
+    // Box decorativo
     let boxTop = "╔══════════════════════╗";
     let boxBottom = "╚══════════════════════╝";
     let line = "──────────────────────";
@@ -29,9 +37,8 @@ ${boxTop}
 ${line}
 ⚡ ${fancyFont("Velocità:")} ${ping}ms
 💓 ${fancyFont("Status:")} 𝙾𝙽𝙻𝙸𝙽𝙴
+🕒 ${fancyFont("Online da:")} ${uptime}
 🚀 ${fancyFont("Prestazioni:")} ${ping <= 150 ? "🟢 Ottime" : ping <= 400 ? "🟡 Normali" : "🔴 Lente"}
-${line}
-🕒 ${fancyFont("Uptime:")} ${Math.floor(process.uptime()/60)}m
 ${boxBottom}
 `;
 
