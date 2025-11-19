@@ -2,34 +2,34 @@ let handler = async (m, { conn }) => {
     let user;
     let msgId = "";
 
-    // Reply
+    // 1️⃣ Reply
     if (m.quoted) {
         user = m.quoted.sender;
-        msgId = m.quoted.key.id || "";
+        msgId = m.quoted?.key?.id || "";
     }
-    // Mention
+    // 2️⃣ Mention
     else if (m.mentions && m.mentions.length > 0) {
         user = m.mentions[0];
 
-        // Prendiamo ultimi messaggi per stimare ID
+        // Prendiamo ultimi 50 messaggi
         const chat = await conn.fetchMessages(m.chat, { limit: 50 });
-        const targetMsg = chat.messages.find(msg => msg.key.participant === user);
+        const targetMsg = chat.messages.find(msg => msg.key?.participant === user);
         msgId = targetMsg?.key?.id || "";
     }
-    // Nessuno selezionato
+    // 3️⃣ Nessuno selezionato
     else {
         user = m.sender;
-        msgId = m.key.id || "";
+        msgId = m.key?.id || "";
     }
 
     // Stimiamo il dispositivo da ID
-    msgId = msgId.toUpperCase();
+    const id = msgId.toUpperCase();
     let device = "❓ Sconosciuto";
 
-    if (msgId.startsWith("3EB0")) device = "🤖 Android Boss";
-    else if (msgId.startsWith("BAE5")) device = "🍏 iPhone King";
-    else if (msgId.startsWith("WEB")) device = "🖥️ WhatsApp Web";
-    else if (msgId.startsWith("DESKTOP")) device = "💻 Desktop Don";
+    if (id.startsWith("3EB0")) device = "🤖 Android Boss";
+    else if (id.startsWith("BAE5")) device = "🍏 iPhone King";
+    else if (id.startsWith("WEB")) device = "🖥️ WhatsApp Web";
+    else if (id.startsWith("DESKTOP")) device = "💻 Desktop Don";
 
     const replyText = `
 💀 *💣 CHECK DISPOSITIVO 💣*
