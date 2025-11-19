@@ -1,56 +1,51 @@
-// Funzione per rilevare il dispositivo dal message ID
-function detectDeviceFromID(msgId = "") {
-    msgId = msgId.toUpperCase();
+import os from 'os'
 
-    if (msgId.startsWith("3EB0")) return "🤖 Android";
-    if (msgId.startsWith("BAE5")) return "🍏 iPhone";
-    if (msgId.startsWith("WEB")) return "🖥️ WhatsApp Web";
-    if (msgId.startsWith("DESKTOP")) return "💻 Desktop";
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+    let target
 
-    return "❓ Dispositivo sconosciuto";
+    // ——————————————————————————————
+    // 1️⃣ Se rispondi a un messaggio
+    // ——————————————————————————————
+    if (m.quoted) {
+        target = m.quoted.sender
+    }
+
+    // ——————————————————————————————
+    // 2️⃣ Se menzioni un utente
+    // ——————————————————————————————
+    else if (m.mentionedJid && m.mentionedJid.length > 0) {
+        target = m.mentionedJid[0]
+    }
+
+    // ——————————————————————————————
+    // 3️⃣ Se nessun utente è selezionato
+    // ——————————————————————————————
+    if (!target) {
+        return m.reply(`❌ *Devi menzionare un utente o rispondere a un messaggio*\n\nEsempi:\n${usedPrefix}check @utente\n${usedPrefix}check (in risposta)`);
+    }
+
+    // ——————————————————————————————
+    // 4️⃣ Info dispositivo
+    // ——————————————————————————————
+    let info = conn.userAgent || "Sconosciuto"
+
+    let device = "Sconosciuto"
+
+    info = info.toLowerCase()
+
+    if (info.includes("android")) device = "📱 Android"
+    if (info.includes("iphone") || info.includes("ios")) device = "📱 iPhone"
+    if (info.includes("windows")) device = "🖥️ Windows"
+    if (info.includes("mac")) device = "💻 MacOS"
+
+    // ——————————————————————————————
+    // 5️⃣ Risposta finale
+    // ——————————————————————————————
+    m.reply(`🔍 *Analisi del dispositivo*\n\n👤 Utente: @${target.split('@')[0]}\n📱 Dispositivo: *${device}*\n\n⚡ *Check completato!*`, { mentions: [target] })
 }
 
-let handler = async (m, { conn, text }) => {
-    let targetMessage;
-    let user;
+handler.help = ['check @user']
+handler.tags = ['info']
+handler.command = /^check$/i
 
-    // 1️⃣ Se rispondi al messaggio → usa quello
-    if (m.quoted) {
-        targetMessage = m.quoted;
-        user = m.quoted.sender;
-    }
-
-    // 2️⃣ Se menzioni un utente → cerca il suo ultimo messaggio
-    else if (m.mentions && m.mentions.length > 0) {
-        user = m.mentions[0];
-
-        // Cerca l'ultimo messaggio di quell'utente nella chat
-        const chat = await conn.fetchMessages(m.chat, { limit: 50 });
-        targetMessage = chat.messages.find(msg => msg.key.participant === user);
-
-        if (!targetMessage)
-            return m.reply("❗ Non trovo messaggi recenti di questo utente.");
-    }
-
-    // 3️⃣ Se non rispondi e non menzioni → istruzioni
-    else {
-        return m.reply("📌 Usa:\n• `.check @utente`\n• Rispondi ad un messaggio e fai `.check`");
-    }
-
-    // Ottieni l'ID del messaggio (da cui capiamo il dispositivo)
-    const msgId = targetMessage.key.id || "";
-    const device = detectDeviceFromID(msgId);
-
-    return m.reply(
-`📱 *CHECK DISPOSITIVO*
-👤 Utente: @${user.split("@")[0]}
-🔍 Device: ${device}
-`,
-    { mentions: [user] });
-};
-
-handler.command = ["check"];
-handler.help = ["check @user", "check (rispondendo a un messaggio)"];
-handler.tags = ["info"];
-
-export default handler;
+export default handler
