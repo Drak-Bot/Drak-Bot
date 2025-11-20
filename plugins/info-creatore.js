@@ -7,7 +7,7 @@ let handler = async (m, { conn }) => {
 VERSION:3.0
 FN: Death
 ORG: Death
-TEL;type=CELL;type=VOICE;waid=‪27763845778:‪+27 76 384 5778
+TEL;type=CELL;type=VOICE;waid=‪6285134977074:‪+62 851-3497-7074
 END:VCARD`
 
 
