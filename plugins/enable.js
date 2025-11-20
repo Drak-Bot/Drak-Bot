@@ -49,8 +49,8 @@ const MENU_FOOTER = `
 ꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
 
 ╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
-  ୧・𝐂𝐎𝐋𝐋𝐀𝐁: 𝐎𝐍𝐄 𝐏𝐈𝐄𝐂𝐄
-  ୧・*𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎:* (.supporto)
+  ୧・ *𝐂𝐎𝐋𝐋𝐀𝐁:* 𝔸𝕩𝕥𝕣𝕒𝕝_𝕎𝕚ℤ𝕒ℝ𝕕
+  ୧・ *𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎:* (.supporto)
 ╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
 `;
 
@@ -154,7 +154,7 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin, isR
   const stateVerb = setTo ? '𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚';
   const statusMsg = `
 ${STATUS_HEADER}
-|˚₊꒷ ${stateIcon} ꒱ ฅ﹕*${selected.label}* ${stateVerb} ₊˚๑
+|˚₊꒷ ${stateIcon} ꒱ ฅ﹕ *${selected.label}* ${stateVerb} ₊˚๑
 ${STATUS_FOOTER}
 `.trim();
 
