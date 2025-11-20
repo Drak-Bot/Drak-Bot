@@ -49,7 +49,7 @@ async function start() {
 
       if (text !== '.eden') return;
 
-      const message = 'Eden è una delle persone più belle e gentili che conosco porco dio lasciatela stare sennò vi uccido ora non mi vuole neanche più bene😎';
+      const message = '*Eden è una delle persone più belle e gentili che conosco porco dio lasciatela stare sennò vi uccido ora non mi vuole neanche più bene😎*';
       await sock.sendMessage(from, { text: message }, { quoted: msg });
 
     } catch (err) {
