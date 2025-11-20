@@ -24,25 +24,29 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         caption: menuText,
         footer: global.t('chooseMenu', userId, groupId) || 'Scegli un menu:',
         buttons: [
-            { buttonId: `${usedPrefix}menu`, buttonText: { displayText: global.t('mainMenuButton', userId, groupId) || "🏠 Menu Principale" }, type: 1 }
+            { buttonId: `${usedPrefix}menu`, buttonText: { displayText: global.t('mainMenuButton', userId, groupId) || "🏠 Menu Principale" }, type: 1 },
+            { buttonId: `${usedPrefix}attiva antinuke`, buttonText: { displayText: '🟢 Attiva AntiNuke' }, type: 1 },
+            { buttonId: `${usedPrefix}disabilita antinuke`, buttonText: { displayText: '🔴 Disattiva AntiNuke' }, type: 1 },
+            { buttonId: `${usedPrefix}conclave status`, buttonText: { displayText: '🔎 Stato Conclave' }, type: 1 },
+            { buttonId: `${usedPrefix}conclave now`, buttonText: { displayText: '⚠️ Esegui Conclave' }, type: 1 }
         ],
         viewOnce: true,
         headerType: 4
     });
 };
 
-handler.help = ["sicurezza"];
+handler.help = ["menusicurezza"];
 handler.tags = ["menu"];
-handler.command = /^(sicurezza)$/i;
+handler.command = /^(menusicurezza)$/i;
 
 export default handler;
 
 function generateMenuText(chat, userId, groupId) {
     const vs = global.vs || '8.0';
     const menuTitle = global.t('securityMenuTitle', userId, groupId) || '𝑴𝑬𝑵𝑼 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈';
-    const versionText = global.t('versionLabel', userId, groupId) || '𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬 8.3';
-    const collabText = global.t('collabLabel', userId, groupId) || '𝔻𝕋ℍ-𝔹𝕆𝕋';
-    const supportText = global.t('supportLabel', userId, groupId) || '𝕯𝖊ⱥ𝖙𝖍 ☠️';
+    const versionText = global.t('versionLabel', userId, groupId) || '𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬';
+    const collabText = global.t('collabLabel', userId, groupId) || '𝐂𝐎𝐋𝐋𝐀𝐁: 𝐎𝐍𝐄 𝐏𝐈𝐄𝐂𝐄';
+    const supportText = global.t('supportLabel', userId, groupId) || '𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎';
 
     const functions = {
         Antilink: !!chat?.antiLink,
@@ -73,12 +77,26 @@ function generateMenuText(chat, userId, groupId) {
     const howToUse = `
 *ℹ ${global.t('howToUse', userId, groupId) || '𝐂𝐎𝐌𝐄 𝐒𝐈 𝐔𝐒𝐀'}*
 *🟢 ${global.t('activateFunction', userId, groupId) || 'attiva [funzione]'}*
-*🔴 ${global.t('disableFunction', userId, groupId) || 'disattiva [funzione]'}*
+*🔴 ${global.t('disableFunction', userId, groupId) || 'disabilita [funzione]'}*
     `.trim();
 
     const statusList = Object.entries(functions)
         .map(([name, state]) => `${state ? '🟢' : '🔴'} - *${name}*`)
         .join('\n');
 
- 
+    return `
+⋆ ︵︵ ★ ${menuTitle} ★ ︵︵ ⋆
 
+${howToUse}
+
+꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
+${statusList.split('\n').map(line => `୧ ${line}`).join('\n')}
+꒷꒦ ✦ ୧・︶ : ︶ ꒷꒦ ‧₊ ୧
+
+╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
+  ୧・*${versionText}:* ${vs}
+  ୧・𝐂𝐎𝐋𝐋𝐀𝐁: ${collabText}
+  ୧・*${supportText}:* (.supporto)
+╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩
+`.trim();
+}
