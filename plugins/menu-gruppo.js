@@ -184,8 +184,8 @@ function generateMenuText(prefix, userId, groupId) {
     const footer = `
 ┃◈╭─✦ *INFO* ✦═╗
 ┃◈┃• *${global.t('versionLabel', userId, groupId) || '𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬'}:* ${vs}
-┃◈┃• ${global.t('collabLabel', userId, groupId) || '𝐂𝐎𝐋𝐋𝐀𝐁: demon slayer'}
-┃◈┃• *${global.t('supportLabel', userId, groupId) || '𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎'}:* (chiama 𝕯𝖊ⱥ𝖙𝖍)
+┃◈┃• *${global.t('collabLabel', userId, groupId) || '𝐂𝐎𝐋𝐋𝐀𝐁'}:* ${collab}
+┃◈┃• *${global.t('supportLabel', userId, groupId) || '𝐒𝐔𝐏𝐏𝐎𝐑𝐓𝐎'}:* (.supporto)
 ┃◈╰━━━━━━━━━━━━┈⊷
     `.trim();
 
