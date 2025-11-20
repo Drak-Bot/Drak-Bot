@@ -8,10 +8,10 @@ global.confirmCode = '';
 global.nomebot = '𝔻𝕋ℍ-𝔹𝕆𝕋';
 global.packname = '𝔻𝕋ℍ-𝔹𝕆𝕋';
 global.author = '';
-global.vs = '1.0';
+global.vs = '𝟏.𝟎';
 global.collab = '𝔸𝕩𝕥𝕣𝕒𝕝_𝕎𝕚ℤ𝕒ℝ𝕕';
 global.wm = global.nomebot;
-global.wait = 'ⓘ 𝐂𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨 ...';
+global.wait = 'ⓘ 𝐂𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨...';
 
 
 global.owner = [
