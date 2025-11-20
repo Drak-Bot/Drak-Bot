@@ -65,7 +65,7 @@ function generateMenuText(chat, userId, groupId) {
         Antivoip: !!chat?.antivoip,
         Antimedia: !!chat?.antimedia,
         Antisondaggi: !!chat?.antisondaggi,
-        AntitikTok: !!chat?.antitiktok,
+        Antitiktok: !!chat?.antitiktok,
         Antiinsta: !!chat?.antiinsta,
         Antilink: !!chat?.antiLink,
         Antilinkhard: !!chat?.antiLinkHard
