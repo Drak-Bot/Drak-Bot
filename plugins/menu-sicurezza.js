@@ -68,13 +68,12 @@ function generateMenuText(chat, userId, groupId) {
         Antimedia: !!chat?.antimedia,
         Antisondaggi: !!chat?.antisondaggi,
         AntiTikTok: !!chat?.antitiktok
-        AntiBho: !!chat?.antibho
     };
 
     const howToUse = `
 *ℹ ${global.t('howToUse', userId, groupId) || '𝐂𝐎𝐌𝐄 𝐒𝐈 𝐔𝐒𝐀'}*
-*🟢 ${global.t('activateFunction', userId, groupId) || '1 [funzione]'}*
-*🔴 ${global.t('disableFunction', userId, groupId) || '0 [funzione]'}*
+*🟢 ${global.t('activateFunction', userId, groupId) || 'attiva [funzione]'}*
+*🔴 ${global.t('disableFunction', userId, groupId) || 'disattiva [funzione]'}*
     `.trim();
 
     const statusList = Object.entries(functions)
