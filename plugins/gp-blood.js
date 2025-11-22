@@ -1,18 +1,13 @@
-//=============== PLUGIN .blood ===============//
-
-module.exports = {
-    name: "blood",
-    alias: ["blood"],
-    desc: "Blood frase",
-    category: "fun",
-    react: "🩸",
-
-    start: async (sock, m, { text }) => {
-
-        const msg = `
-*Blood é il catanese più simpatico delle comm, il mio migliore amico e il marito di Velith.  
+// plugin fatto da Death
+let handler = async (m, { conn, command, text }) => {
+  const message = `*Blood é il catanese più simpatico delle comm, il mio migliore amico e il marito di Velith.  
 Non lo fate incazzare o vi saltano i numeri e partono i doxx dove vi prende pure i peli del culo.*`;
-
-        await sock.sendMessage(m.from, { text: msg }, { quoted: m });
-    }
+  // manda il messaggio nella chat dove il comando è stato usato, citandolo
+  await conn.sendMessage(m.chat, { text: message }, { quoted: m });
 };
+
+handler.help = ['eden'];
+handler.tags = ['fun'];
+handler.command = /^eden$/i;
+
+export default handler;
