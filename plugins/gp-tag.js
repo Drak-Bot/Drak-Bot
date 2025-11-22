@@ -5,7 +5,7 @@ module.exports = (sock) => {
         const from = msg.key.remoteJid;
         const body = msg.message.conversation || msg.message.extendedTextMessage?.text || '';
 
-        if (!body.startsWith('.tag')) return;
+        if (!body.startsWith('.totag')) return;
         if (!from.endsWith('@g.us')) {
             await sock.sendMessage(from, { text: 'Questo comando funziona solo nei gruppi.' });
             return;
@@ -13,7 +13,7 @@ module.exports = (sock) => {
 
         const text = body.slice(4).trim();
         if (!text) {
-            await sock.sendMessage(from, { text: 'Devi inserire un messaggio dopo .tag' });
+            await sock.sendMessage(from, { text: 'Devi inserire un messaggio dopo .totag' });
             return;
         }
 
@@ -22,9 +22,9 @@ module.exports = (sock) => {
             const participants = metadata.participants.map(p => p.id);
 
             await sock.sendMessage(from, { text, mentions: participants });
-            console.log(`📢 Comando .tag eseguito in ${metadata.subject}`);
+            console.log(`📢 Comando .totag eseguito in ${metadata.subject}`);
         } catch (err) {
-            console.error('❌ Errore nel comando .tag:', err);
+            console.error('❌ Errore nel comando .totag:', err);
             await sock.sendMessage(from, { text: 'Errore durante l\'invio del messaggio.' });
         }
     });
