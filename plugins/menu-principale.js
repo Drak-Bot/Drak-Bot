@@ -50,8 +50,8 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
 ➥ Staff 🤖
 ➥ Creatore 👑
 
-_Versione_: *1.0*
-_Collab_: 𝔸𝕩𝕥𝕣𝕒𝕝_𝕎𝕚ℤ𝕒ℝ𝕕
+*𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬:* ${vs}
+*𝑪𝑶𝑳𝑳𝑨𝑩:* ${collab}
 `;
 
     const menuText = generateMenuText(userCount) + extraMenu;
