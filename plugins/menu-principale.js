@@ -2,11 +2,11 @@ const handler = async (m, { conn }) => {
 
 const msg = `🏠 *MENU PRINCIPALE*
 
-Founder :
-➥ 𝘿𝙚𝙖𝙩𝙝 💀
+*Founder* :
+➥ 𝕯𝖊ⱥ𝖙𝖍 💀
 
-Co-Founder :
-➥ BLOOD#velith 🔥
+*Co-Founder* :
+➥ 𝑩𝑳𝑶𝑶𝑫 🩸
 
 _versione_ : *1.0*
 ────────────────────────────────
