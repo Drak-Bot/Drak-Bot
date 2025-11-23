@@ -10,9 +10,10 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Menu principale con SOLO utenti registrati
+ * e titolo personalizzato
  */
-function generateMenuText(botName = 'Bot', userCount = 0) {
-  return `✨ *${botName} - Menu Principale* ✨
+function generateMenuText(userCount = 0) {
+  return `𝔻𝕋ℍ-𝔹𝕆𝕋 *Menu Principale*
 
 Utenti registrati: *${userCount}*
 
@@ -24,9 +25,8 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
     const groupId = message.isGroup ? message.chat : null;
 
     const userCount = Object.keys(global.db?.data?.users || {}).length;
-    const botName = global.db?.data?.nomedelbot || 'ChatUnity';
 
-    // ===== TUO MENU TESTUALE (SECONDO PLUGIN) =====
+    // ===== TUO MENU TESTUALE PERSONALIZZATO =====
     const extraMenu = `\n🏠 *MENU PRINCIPALE*
 
 *Founder* :
@@ -54,7 +54,7 @@ _Versione_: *1.0*
 _Collab_: 𝔸𝕩𝕥𝕣𝕒𝕝_𝕎𝕚ℤ𝕒ℝ𝕕
 `;
 
-    const menuText = generateMenuText(botName, userCount) + extraMenu;
+    const menuText = generateMenuText(userCount) + extraMenu;
 
     const imagePath = path.join(__dirname, '../media/principale.jpeg');
 
