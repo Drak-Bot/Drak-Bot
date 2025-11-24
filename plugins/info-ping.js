@@ -7,7 +7,12 @@ const __dirname = path.dirname(__filename);
 
 const handler = async (message, { conn }) => {
 
+    // Inizio misurazione
     const start = performance.now();
+
+    // Messaggio "fantasma" per calcolare un ping reale
+    await conn.sendMessage(message.chat, { text: '‎' });
+
     const ping = Math.round(performance.now() - start);
 
     const uptimeMs = process.uptime() * 1000;
