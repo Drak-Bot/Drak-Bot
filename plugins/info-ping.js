@@ -2,7 +2,7 @@ const fs = require('fs');
 
 module.exports = {
     name: 'ping',
-    description: 'Mostra il ping del bot con thumbnail',
+    description: 'Mostra il ping del bot con thumbnail invisibile',
     async execute(sock, msg, args) {
         const from = msg.key.remoteJid;
 
@@ -25,10 +25,16 @@ module.exports = {
 ╚════════════
         `;
 
-        // Invia il messaggio con thumbnail
+        // Invia solo testo con thumbnail, nessuna immagine cliccabile
         await sock.sendMessage(from, {
             text: messageText,
-            jpegThumbnail: fs.readFileSync('./media/ping.jpeg')
+            contextInfo: {
+                externalAdReply: {
+                    title: "Ping Bot",
+                    mediaType: 2, // thumbnail
+                    thumbnail: fs.readFileSync('./media/ping.jpeg'),
+                }
+            }
         });
     }
 };
