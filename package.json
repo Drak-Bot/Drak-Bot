@@ -30,6 +30,15 @@
     "url": "https://github.com/chatunitycenter/chatunity-bot/issues"
   },
   "license": "GPL-3.0-or-later",
+
+  "overrides": {
+    "sharp": "@img/sharp-wasm32"
+  },
+
+  "resolutions": {
+    "sharp": "@img/sharp-wasm32"
+  },
+
   "dependencies": {
     "@bochilteam/scraper": "^5.0.1",
     "@realvare/based": "latest",
