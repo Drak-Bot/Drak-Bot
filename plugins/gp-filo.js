@@ -7,6 +7,6 @@ let handler = async (m, { conn, command, text }) => {
 
 handler.help = ['filo'];
 handler.tags = ['fun'];
-handler.command = /^filo|666$/i;
+handler.command = /^filo$/i;
 
 export default handler;
