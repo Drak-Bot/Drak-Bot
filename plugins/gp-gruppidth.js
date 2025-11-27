@@ -1,23 +1,17 @@
 // plugins/gp-gruppidth.js (ESM)
-// Elenco dei gruppi dove il bot è presente
+// Comando: .gruppidth
+// Il bot mostra l’elenco di tutti i gruppi dove è presente
 
 export default function gpGruppidth(sock) {
-  if (!sock) {
-    console.error("[gp-gruppidth] ERRORE: sock non fornito!");
-    return;
-  }
-
-  console.log("[gp-gruppidth] Plugin caricato.");
-
-  sock.ev.on('messages.upsert', async (m) => {
+  sock.ev.on("messages.upsert", async (m) => {
     try {
-      if (!m.messages || m.type !== 'notify') return;
+      if (!m.messages || m.type !== "notify") return;
 
       const msg = m.messages[0];
-      if (!msg || !msg.message || msg.key?.remoteJid === 'status@broadcast') return;
+      if (!msg || !msg.message || msg.key.remoteJid === "status@broadcast") return;
 
       const from = msg.key.remoteJid;
-      if (!from.endsWith('@g.us')) return; // solo gruppi
+      if (!from.endsWith("@g.us")) return;
 
       const sender = msg.key.participant || msg.key.remoteJid;
 
@@ -25,12 +19,13 @@ export default function gpGruppidth(sock) {
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
         msg.message.imageMessage?.caption ||
-        '';
+        "";
+
       text = String(text).trim().toLowerCase();
 
-      if (text !== '.gruppidth') return; // comando diverso → ignora
+      if (text !== ".gruppidth") return;
 
-      // Controllo admin
+      // Controllo admin del gruppo
       const metadata = await sock.groupMetadata(from);
       const admins = metadata.participants.filter(p => p.admin).map(p => p.id);
 
@@ -39,24 +34,27 @@ export default function gpGruppidth(sock) {
         return;
       }
 
-      // Filtra tutti i gruppi dove il bot è presente
-      const chats = sock.chats.all().filter(c => c.id.endsWith('@g.us'));
+      // Ottieni tutti i gruppi dove il bot è presente
+      const groups = await sock.groupFetchAllParticipating();
+      const ids = Object.keys(groups);
 
-      if (!chats.length) {
-        await sock.sendMessage(from, { text: "😢 Non sono in nessun gruppo al momento." }, { quoted: msg });
+      if (!ids.length) {
+        await sock.sendMessage(from, { text: "😢 Non sono in nessun gruppo." }, { quoted: msg });
         return;
       }
 
-      // Costruisci elenco
-      let list = "📋 *Elenco dei gruppi dove sono presente:*\n\n";
-      chats.forEach((g, i) => {
-        list += `${i + 1}. ${g.name || "N/A"}\nID: ${g.id}\n\n`;
+      // Costruisci lista
+      let result = "📋 *Gruppi dove sono presente:*\n\n";
+
+      ids.forEach((id, i) => {
+        const g = groups[id];
+        result += `${i + 1}. *${g.subject || "Senza nome"}*\nID: ${id}\n\n`;
       });
 
-      await sock.sendMessage(from, { text: list }, { quoted: msg });
+      await sock.sendMessage(from, { text: result }, { quoted: msg });
 
     } catch (err) {
-      console.error("[gp-gruppidth] ERRORE interno:", err);
+      console.error("[gp-gruppidth] Errore:", err);
     }
   });
-             }
+}
