@@ -1,11 +1,14 @@
-import { performance } from "perf_hooks"
-
 let handler = async (m, { conn }) => {
-  const start = performance.now()
-
-  // invia direttamente il messaggio finale
   const uptime = process.uptime() * 1000
   const status = "🟢 Online"
+
+  // otteniamo il ping reale del WebSocket (se disponibile)
+  let ping = 0
+  try {
+    ping = conn.ws?.ping || conn.ws?._socket?.ping || 0
+  } catch {
+    ping = 0
+  }
 
   const formatTime = (ms) => {
     let h = Math.floor(ms / 3600000)
@@ -14,29 +17,17 @@ let handler = async (m, { conn }) => {
     return `${h}h ${m}m ${s}s`
   }
 
-  // prepara il messaggio
-  const msg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
+  const message = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
 │ 🕐 *Uptime:* ${formatTime(uptime)}
-│ ⚡ *Ping:* calcolando...
+│ ⚡ *Ping:* ${ping} ms
 │ 📶 *Stato:* ${status}
 ╰────────────────────⬣`
 
-  // invia il messaggio e misura quanto impiega WA
-  await conn.sendMessage(m.chat, { text: msg }, { quoted: m })
-  const ping = performance.now() - start
-
-  // aggiorna il messaggio con il ping reale
-  const finalMsg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
-│ 🕐 *Uptime:* ${formatTime(uptime)}
-│ ⚡ *Ping:* ${ping.toFixed(0)} ms
-│ 📶 *Stato:* ${status}
-╰────────────────────⬣`
-
-  await conn.sendMessage(m.chat, { text: finalMsg }, { quoted: m })
+  await conn.sendMessage(m.chat, { text: message }, { quoted: m })
 }
 
-handler.help = ['status', 'uptime']
-handler.tags = ['info']
+handler.help = ["status", "uptime"]
+handler.tags = ["info"]
 handler.command = /^status|uptime$/i
 
 export default handler
