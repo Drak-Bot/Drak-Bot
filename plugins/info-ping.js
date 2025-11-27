@@ -3,11 +3,7 @@ import { performance } from "perf_hooks"
 let handler = async (m, { conn }) => {
   const start = performance.now()
 
-  // invio un messaggio temporaneo per misurare il ping
-  await conn.sendMessage(m.chat, { text: "⌛ Test ping..." })
-
-  const ping = performance.now() - start
-
+  // invia direttamente il messaggio finale
   const uptime = process.uptime() * 1000
   const status = "🟢 Online"
 
@@ -18,13 +14,25 @@ let handler = async (m, { conn }) => {
     return `${h}h ${m}m ${s}s`
   }
 
-  const message = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
+  // prepara il messaggio
+  const msg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
+│ 🕐 *Uptime:* ${formatTime(uptime)}
+│ ⚡ *Ping:* calcolando...
+│ 📶 *Stato:* ${status}
+╰────────────────────⬣`
+
+  // invia il messaggio e misura quanto impiega WA
+  await conn.sendMessage(m.chat, { text: msg }, { quoted: m })
+  const ping = performance.now() - start
+
+  // aggiorna il messaggio con il ping reale
+  const finalMsg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
 │ 🕐 *Uptime:* ${formatTime(uptime)}
 │ ⚡ *Ping:* ${ping.toFixed(0)} ms
 │ 📶 *Stato:* ${status}
 ╰────────────────────⬣`
 
-  await conn.sendMessage(m.chat, { text: message }, { quoted: m })
+  await conn.sendMessage(m.chat, { text: finalMsg }, { quoted: m })
 }
 
 handler.help = ['status', 'uptime']
