@@ -1,47 +1,34 @@
-// fun-rsban.js — compatibile con ES Modules
+/**
+ * Esegue la "Roulette Ban": seleziona casualmente un membro del gruppo e prepara il messaggio.
+ * @param {Array<Object>} partecipanti - La lista dei partecipanti del gruppo (es. ottenuta da chat.participants).
+ * @param {string} clientId - L'ID dell'utente/bot che esegue lo script.
+ * @returns {{messaggio: string, utenteTaggato: string}} - L'output da inviare.
+ */
+function rouletteBan(partecipanti, clientId) {
+    // 1. Filtra i partecipanti per escludere il bot
+    const membriReali = partecipanti.filter(p => p.id._serialized !== clientId);
 
-export default {
-    name: "rsban",
-    description: "Roulette ban",
-    command: ".rsban",
-
-    async run(sock, msg) {
-        try {
-            const from = msg.key.remoteJid;
-
-            // deve essere un gruppo
-            if (!from.endsWith("@g.us")) {
-                return await sock.sendMessage(from, { text: "Questo comando funziona solo nei gruppi!" });
-            }
-
-            // ottieni info gruppo
-            const metadata = await sock.groupMetadata(from);
-            const members = metadata.participants.map(p => p.id);
-
-            if (members.length === 0) {
-                return await sock.sendMessage(from, { text: "Non ho trovato utenti nel gruppo." });
-            }
-
-            // scegli casuale
-            const randomUser = members[Math.floor(Math.random() * members.length)];
-
-            const frasi = [
-                "🎯 La roulette del ban ha parlato!",
-                "🔫 Ops... qualcuno è stato estratto!",
-                "🎲 La sorte ha deciso!",
-                "💣 BOOM! È stato scelto!",
-            ];
-
-            const frase = frasi[Math.floor(Math.random() * frasi.length)];
-
-            await sock.sendMessage(from, {
-                text: `${frase}\n\nIl prescelto è 👉 @${randomUser.split("@")[0]}`,
-                mentions: [randomUser]
-            });
-
-        } catch (err) {
-            console.error("Errore in rsban:", err);
-            await sock.sendMessage(msg.key.remoteJid, { text: "Si è verificato un errore nel comando." });
-        }
+    if (membriReali.length === 0) {
+        return { messaggio: "Non ci sono altri membri nel gruppo per eseguire la Roulette Ban.", utenteTaggato: "" };
     }
-};
+
+    // 2. Selezione casuale dell'indice
+    const indiceCasuale = Math.floor(Math.random() * membriReali.length);
+    
+    // 3. Ottiene il membro selezionato
+    const sfortunato = membriReali[indiceCasuale];
+    
+    // L'ID serializzato
+    const utenteTaggato = sfortunato.id._serialized; 
+
+    // 4. MESSAGGIO FISSO (Il secondo che hai scelto) 🎲
+    const messaggioFisso = "🎲 La pallina gira, il tamburo spara... **Tutti zitti!** La sorte è stata lanciata. Il nostro prossimo candidato alla pausa chat è...";
+    
+    return { 
+        // Viene aggiunto il tag all'utente
+        messaggio: `${messaggioFisso} @${utenteTaggato.split('@')[0]}`,
+        utenteTaggato: utenteTaggato
+    };
+}
+
+module.exports = { rouletteBan }; 
