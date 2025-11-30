@@ -45,6 +45,7 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
 ➥ Blood 🩸
 ➥ Tiamo ❤️
 ➥ Pokeball 🏐
+➥ Agejob 👾
 ➥ Sigaretta 🚬
 ➥ Bestemmiometro on/off 😠
 ➥ Rsban 👾
