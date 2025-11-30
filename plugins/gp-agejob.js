@@ -1,27 +1,35 @@
 let handler = async (m, { conn }) => {
-    // Step 1: il bot chiede l'età e salva che sta aspettando una risposta
-    await conn.sendMessage(m.chat, {
+    
+    // Messaggio del bot
+    let sent = await conn.sendMessage(m.chat, {
         text: "👋 *Ciao! Quanti anni hai?*\n\nRispondi a *questo messaggio* con la tua età!"
     })
 
-    // Salviamo in attesa una risposta per questo utente
+    // Salviamo l'ID del messaggio a cui l’utente deve rispondere
     conn.ageJobWaiting = conn.ageJobWaiting || {}
-    conn.ageJobWaiting[m.sender] = true
+    conn.ageJobWaiting[m.sender] = sent.key.id
 }
 
 handler.command = /^agejob$/i
 export default handler
 
 
-// Listener per quando l’utente risponde
+
+// ───── LISTENER DELLE RISPOSTE ─────
 let before = async (m, { conn }) => {
-    // Se non stiamo aspettando l’età, ignora
+
     conn.ageJobWaiting = conn.ageJobWaiting || {}
+
+    // Se non aspettiamo l’età da questo utente → esci
     if (!conn.ageJobWaiting[m.sender]) return
 
-    // Controlliamo se ha risposto al messaggio del bot
-    if (!m.quoted) return
-    if (isNaN(m.text)) return m.reply("❌ Per favore scrivi solo un numero!")
+    // Verifica che il messaggio sia una risposta al messaggio del bot
+    if (!m.quoted || m.quoted.id !== conn.ageJobWaiting[m.sender]) return
+
+    // Controllo che il messaggio sia un numero
+    if (isNaN(m.text)) {
+        return m.reply("❌ Scrivi solo un numero, per favore!")
+    }
 
     let age = parseInt(m.text)
     let job = ""
@@ -36,10 +44,10 @@ let before = async (m, { conn }) => {
     else if (age < 65) job = "🛠️ *Consulente globale per problemi impossibili*"
     else job = "🧙 *Mago anziano che sa tutto della vita*"
 
-    // Risposta del bot
+    // Risposta
     await m.reply(`👀 Hai *${age} anni*!\nIl lavoro perfetto per te è:\n\n${job}`)
 
-    // Tolgo lo stato di attesa
+    // Cancello lo stato in attesa
     delete conn.ageJobWaiting[m.sender]
 }
 
