@@ -1,23 +1,16 @@
-// playnik.js
-// Comando .playnik - utilizzabile da tutti gli utenti
+let handler = async (m, { conn }) => {
+  const reply = `🎮 *NICKNAME PLAYSTATION DEI MIEI PADRONI* 🎮
 
-module.exports = {
-  name: 'playnik',
-  description: 'Mostra i nickname della PlayStation dei padroni',
-  prefix: '.', // prefisso del comando
-  command: 'playnik',
-  async execute(conn, msg, args) {
-    try {
-      const reply = `Death : Kite_muort007 🪽
-Blood : ninomegic 👾
-Questi sono i nickname della play dei miei padroni ❤️`;
+🪽 *Death*:  Kite_muort007
+👾 *Blood*:  ninomegic
 
-      // invio del messaggio (compatibile con Baileys)
-      await conn.sendMessage(msg.key.remoteJid, { text: reply }, { quoted: msg });
+❤️ Questi sono i nickname ufficiali della PlayStation!`;
 
-    } catch (err) {
-      console.error('Errore nel comando .playnik:', err);
-      await conn.sendMessage(msg.key.remoteJid, { text: 'Si è verificato un errore 😢' }, { quoted: msg });
-    }
-  }
+  await conn.sendMessage(m.chat, { text: reply }, { quoted: m });
 };
+
+handler.help = ['playnik'];
+handler.tags = ['fun'];
+handler.command = /^playnik$/i;
+
+export default handler;
