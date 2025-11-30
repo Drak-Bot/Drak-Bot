@@ -30,6 +30,7 @@ const handler = async (message, { conn, usedPrefix }) => {
 ➥ Bandiera 🏳️
 ➥ Ic 🎼
 ➥ Auto 🚗
+➥ Playnik 🎬
 ➥ Wallet 👛
 ➥ Banca 🏦
 ➥ Ruba 🕵🏽
