@@ -24,21 +24,20 @@ const handler = async (m, { conn, args, usedPrefix }) => {
         }, { quoted: m });
         
         // 1. Ottieni lo stream audio da SoundCloud
-        // Questa funzione restituisce direttamente uno Stream
-        const audioStream = await scdl.download(trackUrl);
+        // *** RIGA MODIFICATA: Utilizziamo scdl.downloadTrack ***
+        const audioStream = await scdl.downloadTrack(trackUrl); 
 
         // 2. Ottieni le informazioni per il nome del file
         try {
             const trackInfo = await scdl.getInfo(trackUrl);
+            // Si può anche usare trackInfo.title, ma mantengo la tua pulizia
             title = trackInfo.title.replace(/[^a-zA-Z0-9 ]/g, ''); 
         } catch (infoError) {
-            // Se fallisce solo la richiesta info, si usa il titolo di default
             console.warn("Impossibile ottenere info traccia, usando titolo di default.");
         }
 
 
         // 3. Invio Audio (tramite Stream)
-        // La tua funzione conn.sendMessage deve accettare un oggetto Stream come input
         await conn.sendMessage(m.chat, { 
             audio: { stream: audioStream }, 
             mimetype: "audio/mpeg", 
@@ -51,7 +50,8 @@ const handler = async (m, { conn, args, usedPrefix }) => {
     } catch (error) {
         console.error("Errore nel plugin SoundCloud:", error);
         m.react('❌');
-        m.reply(`⚠️ Download fallito. Errore: ${error.message}\nMotivi: 1. Traccia privata o protetta. 2. Problemi di rete in Termux.`);
+        // Rimuoviamo i motivi non pertinenti per l'errore tecnico
+        m.reply(`⚠️ Download fallito. Errore: ${error.message}\nMotivi comuni: Traccia non accessibile o problemi di rete.`);
     }
 };
 
