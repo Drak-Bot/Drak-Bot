@@ -31,6 +31,8 @@ const handler = async (message, { conn, usedPrefix }) => {
 ➥ Ic 🎼
 ➥ Auto 🚗
 ➥ Playnik 🎬
+➥ Vecna 👹
+➥ Chucknorris 🕵️‍♂️
 ➥ Wallet 👛
 ➥ Banca 🏦
 ➥ Ruba 🕵🏽
