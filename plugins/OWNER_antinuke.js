@@ -1,43 +1,72 @@
-const { MessageType } = require('@adiwajshing/baileys');
+// ===== Anti-Nuke .420 Plugin =====
+// Compatibile con bot basati su baileys/whiskeysockets
+
+let antiNuke = {};
 
 module.exports = {
-  nome: 'antinuke',
-  desc: 'Attiva/Disattiva la protezione antinuke',
-  uso: '.attiva antinuke | .disattiva antinuke',
-  esempio: '.attiva antinuke',
-  async esegui(mek, { conn, text, args }) {
-    const gruppo = mek.key.remoteJid;
-    const gruppoMetadata = await conn.groupMetadata(gruppo);
-    const owner = ['+6285134977074@s.whatsapp.net', '+212621266387@s.whatsapp.net']; // numeri degli owner del bot
-    const bot = '+19703033177@s.whatsapp.net'; // numero del bot
+   comando: ['420', '420sban'],
+   descrizione: 'AntiNuke .420 – protegge gli admin del gruppo',
+   
+   async run(sock, msg, args) {
+      const from = msg.key.remoteJid;
+      const sender = msg.key.participant || msg.participant;
+      const comando = msg.body?.toLowerCase();
 
-    if (args[0] === 'attiva') {
-      if (gruppoMetadata.antinuke) return conn.reply(gruppo, 'La protezione antinuke è già attiva', mek);
-      await conn.groupUpdateSetting(gruppo, 'antinuke', true);
-      conn.reply(gruppo, 'La protezione antinuke è stata attivata', mek);
-    } else if (args[0] === 'disattiva') {
-      if (!gruppoMetadata.antinuke) return conn.reply(gruppo, 'La protezione antinuke è già disattiva', mek);
-      await conn.groupUpdateSetting(gruppo, 'antinuke', false);
-      conn.reply(gruppo, 'La protezione antinuke è stata disattivata', mek);
-    }
-  },
-  async onGroupUpdate(mek, { conn, text, args }) {
-    const gruppo = mek.jid;
-    const gruppoMetadata = await conn.groupMetadata(gruppo);
-    const antinuke = gruppoMetadata.antinuke;
-    const owner = ['+6285134977074@s.whatsapp.net', '+212621266387@s.whatsapp.net']; // numeri degli owner del bot
-    const bot = '+19703033177@s.whatsapp.net'; // numero del bot
+      if (!msg.isGroup) {
+         return sock.sendMessage(from, { text: "Questo comando funziona solo nei gruppi." });
+      }
 
-    if (antinuke && mek.action === 'promote' || mek.action === 'demote') {
-      const utente = mek.participants[0];
-      if (utente === bot || owner.includes(utente)) return;
-      await conn.groupParticipantsUpdate(gruppo, [utente], 'demote');
-      const admin = await conn.groupParticipants(gruppo, 'admin');
-      admin.forEach(async (admin) => {
-        if (admin.id !== bot && !owner.includes(admin.id)) {
-          await conn.groupParticipantsUpdate(gruppo, [admin.id], 'demote');
-        }
-      });
-    }
-  }
+      // Controllo che il bot sia admin
+      const metadata = await sock.groupMetadata(from);
+      const botId = sock.user.id.split(":")[0] + "@s.whatsapp.net";
+      const botAdmin = metadata.participants.find(m => m.id === botId)?.admin;
+
+      if (!botAdmin) {
+         return sock.sendMessage(from, { text: "Devo essere admin per usare l'Anti-Nuke." });
+      }
+
+      // ATTIVA
+      if (comando === ".420") {
+         antiNuke[from] = true;
+         return sock.sendMessage(from, { text: "🛡️ Anti-Nuke .420 ATTIVATO" });
+      }
+
+      // DISATTIVA
+      if (comando === ".420sban") {
+         antiNuke[from] = false;
+         return sock.sendMessage(from, { text: "🛑 Anti-Nuke .420 DISATTIVATO" });
+      }
+   }
+};
+
+// ===== WATCHER PER EVENTI DEL GRUPPO =====
+module.exports.groupUpdate = async (sock, update) => {
+   try {
+      const grupo = update.id;
+
+      if (!antiNuke[grupo]) return; // antinuke disabilitato
+
+      for (let action of update.participants) {
+         // qualcuno è stato rimosso dal ruolo admin?
+         if (action.admin === 'demote') {
+
+            const metadata = await sock.groupMetadata(grupo);
+            const botId = sock.user.id.split(":")[0] + "@s.whatsapp.net";
+
+            // lista di tutti gli admin
+            let admins = metadata.participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
+
+            // Rimuove admin a tutti tranne al bot
+            for (let adm of admins) {
+               if (adm.id !== botId) {
+                  await sock.groupParticipantsUpdate(grupo, [adm.id], "demote");
+               }
+            }
+
+            await sock.sendMessage(grupo, { text: "⚠️ *Attacco rilevato!* Anti-Nuke .420 attivato.\nTutti gli admin sono stati rimossi eccetto il bot." });
+         }
+      }
+   } catch (e) {
+      console.log("Errore Anti-Nuke:", e);
+   }
 };
