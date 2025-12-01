@@ -5,13 +5,13 @@ import { fileURLToPath } from 'url';
 // CONFIGURAZIONE CHIAVI
 // Sostituire con i JID completi (@s.whatsapp.net)
 const OWNERS = [
-  "+6285134977074@s.whatsapp.net",
-  "+212621266387@s.whatsapp.net"
+  "6285134977074@s.whatsapp.net",
+  "212621266387@s.whatsapp.net"
 ];
 
 const BOT_NUMBERS = [
-  "+19703033177@s.whatsapp.net",
-  "+6281917478560@s.whatsapp.net"
+  "19703033177@s.whatsapp.net",
+  "6281917478560@s.whatsapp.net"
 ];
 
 // File per la persistenza dello stato
