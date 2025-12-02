@@ -1,249 +1,195 @@
-// antinuke-full.js
+@param {import('@whiskeysockets/baileys').WASocket} conn
+ * @param {import('@whiskeysockets/baileys').WA_Events['group-participants.update']} m
+ * @param {Object} options
+ * @param {Function} options.isBotAdmin
+ * @param {Function} options.isOwner
+ */
+async function onParticipantsUpdate(conn, m, { isBotAdmin, isOwner }) {
+  // --- GUARDIE DI SICUREZZA ESSENZIALI ---
+  // Se non ci sono dati, non è un gruppo, o il bot non è admin, non fare nulla.
+  if (!m || !m.chat || !m.action || !isBotAdmin) return
+  
+  const chat = global.db.data.chats[m.chat]
+  // Se l'antinuke non è attivo per questa chat, non fare nulla.
+  if (!chat || !chat.antiNuke) return
 
-// --- CONFIGURAZIONE E UTILITY INTERNE ---
-const path = require('node:path');
-const fs = require('fs-extra'); 
+  // --- LOGICA ANTI-NUKE (SOLO PER RIMOZIONI) ---
+  if (m.action !== 'remove') return
 
-// JID da proteggere (Owner e Bot) - **SOSTITUISCI QUESTI VALORI**
-// IMPORTANTE: Assicurati che non contengano il segno '+' iniziale.
-const OWNERS = [
-  "6285134977074@s.whatsapp.net",
-  "212621266387@s.whatsapp.net"
-];
+  const perpetrator = m.author // L'admin che sta eseguendo l'azione
+  
+  if (!perpetrator) {
+    console.log('[AntiNuke] Azione di rimozione senza autore, impossibile intervenire.')
+    return
+  }
 
-const BOT_NUMBERS = [
-  "19703033177@s.whatsapp.net",
-  "6281917478560@s.whatsapp.net"
-];
+  const metadata = await conn.groupMetadata(m.chat).catch(() => null)
+  if (!metadata) return
+  
+  // Identifica il Proprietario del Gruppo
+  const groupOwner = metadata.owner || metadata.participants.find(p => p.admin === 'superadmin')?.id
 
-// Assumiamo che PermissionLevel sia definito o importato
-const PermissionLevel = { WHITELIST: 1 }; 
+  // --- CONTROLLI DI IMMUNITÀ (Se l'attaccante è immune, usciamo) ---
+  // 1. Il Proprietario del Bot (tu) ha immunità totale.
+  if (isOwner(perpetrator)) {
+    console.log(`[AntiNuke] Azione consentita: eseguita dal Proprietario del Bot (${perpetrator.split('@')[0]}).`)
+    return
+  }
 
-// --- LOGICA UNIFICATA DI DIFESA (CHIAMATA DA COMANDI ED EVENTI) ---
-async function enforceAntinuke(sock, antinukeService, groupJid, logger) {
-    logger.info({ jid: groupJid }, 'AntiNuke enforcement triggered.');
-    
-    // 1. Controlla lo stato del Bot
-    const metadata = await sock.groupMetadata(groupJid);
-    const botJid = sock.user.id && sock.user.id.includes('@') ? sock.user.id : `${sock.user.id}@s.whatsapp.net`;
-    const isBotAdmin = metadata.participants.some(p => p.id === botJid && p.admin !== null);
+  // 2. Il Proprietario del Gruppo ha immunità.
+  if (perpetrator === groupOwner) {
+    console.log(`[AntiNuke] Azione consentita: eseguita dal Proprietario del Gruppo (${perpetrator.split('@')[0]}).`)
+    return
+  }
 
-    if (!isBotAdmin) {
-        logger.warn({ jid: groupJid }, 'AntiNuke: Bot non è admin, impossibile eseguire l\'enforcement.');
-        return sock.sendMessage(groupJid, { text: '⚠️ *ANTI-NUKE FALLITO:* Non sono amministratore in questo gruppo.' });
-    }
+  // --- LOGICA DI BLOCCO AGGRESSIVO ---
+
+  const removedCount = m.participants.length
+  
+  // SOGLIA DI ATTACCO: Rimuovere più di 1 persona è considerato un attacco.
+  if (removedCount > 1) {
+    console.warn(`[AntiNuke] ATTACCO NUKE RILEVATO!`)
+    console.warn(`  > Gruppo: ${metadata.subject} (${m.chat})`)
+    console.warn(`  > Admin Malintenzionato: ${perpetrator.split('@')[0]}`)
+    console.warn(`  > Utenti Rimossi: ${removedCount}`)
 
     try {
-        const participants = metadata.participants;
+      // 1. Trova tutti gli admin attuali nel gruppo
+      const allAdmins = metadata.participants
+        .filter(p => p.admin !== null && p.admin !== undefined)
+        .map(p => p.id)
         
-        // 2. Identifica gli admin da demotare: admin, MA NON Owner e MA NON Bot.
-        const targets = participants
-            .filter(p => {
-                const jid = p.id;
-                const isAdmin = p.admin !== null;
-                return isAdmin && !OWNERS.includes(jid) && !BOT_NUMBERS.includes(jid);
-            })
-            .map(p => p.id); 
+      // 2. Filtra gli admin da declassare: tutti tranne Bot Owner, Group Owner, e il Bot stesso
+      const adminsToDemote = allAdmins.filter(adminId => {
+        const isImmune = isOwner(adminId) || adminId === groupOwner || adminId === conn.user.id;
+        return !isImmune;
+      });
 
-        if (targets.length === 0) {
-            logger.info({ jid: groupJid }, 'AntiNuke: nessun admin esterno da demotare.');
-            return;
-        }
+      if (adminsToDemote.length > 0) {
+        // --- CONTRATTACCO MASSIVO ---
+        
+        // Declassa tutti gli admin non immuni (l'attaccante è sicuramente incluso)
+        await conn.groupParticipantsUpdate(m.chat, adminsToDemote, 'demote')
+        
+        // RECUPERO: Prova a riaggiungere gli utenti rimossi.
+        await conn.groupParticipantsUpdate(m.chat, m.participants, 'add')
 
-        // 3. Esegue il demote per tutti i target
-        await sock.groupParticipantsUpdate(groupJid, targets, 'demote');
-        const demotedCount = targets.length;
-        
-        // 4. Notifica l'azione
-        await sock.sendMessage(groupJid, { 
-            text: `🚨 *ANTI-NUKE ATTIVATO!* 🚨\nMinaccia rilevata. Demotati *${demotedCount}* amministratori esterni (Owner e Bot esclusi).` 
-        });
-        
-    } catch (error) {
-        logger.error({ err: error, jid: groupJid }, 'Errore critico durante l\'enforcement AntiNuke.');
+        // RAPPORTO: Invia un messaggio di avviso
+        await conn.sendMessage(m.chat, {
+          text: `*[🚨 ANTI-NUKE MASSIVO ATTIVATO] Rilevato tentativo di rimozione di massa!*
+Ho neutralizzato l'attacco declassando *tutti gli amministratori* (${adminsToDemote.length} in totale) per garantire la sicurezza del gruppo.
+Solo il Proprietario del Gruppo e il Proprietario del Bot mantengono lo stato di amministratore.
+Ho tentato di riaggiungere i ${removedCount} membri rimossi.`,
+          mentions: [...adminsToDemote, ...m.participants]
+        })
+      } else {
+        // Fallback se per qualche motivo non ci sono admin da declassare oltre agli immuni
+        console.warn('[AntiNuke] Admin list già pulita (solo immuni). Tentativo di riaggiungere gli utenti.')
+        await conn.groupParticipantsUpdate(m.chat, m.participants, 'add')
+        await conn.sendMessage(m.chat, {
+            text: `*[⚠️ ANTI-NUKE] Rilevato nuke! Non c'erano altri admin da declassare, ma ho tentato di riaggiungere i ${removedCount} membri rimossi.*`,
+            mentions: m.participants
+        })
+      }
+      
+    } catch (e) {
+      console.error(`[AntiNuke] ERRORE nel contrattacco massivo:`, e)
+      await conn.sendMessage(m.chat, {
+        text: `*[🚨 ANTI-NUKE ERRORE] Fallito il contrattacco massivo! L'admin malintenzionato potrebbe non essere stato rimosso.*`,
+        mentions: [perpetrator]
+      })
     }
+  }
 }
 
+/**
+ * @param {import('@whiskeysockets/baileys').WASocket} conn
+ * @param {import('@whiskeysockets/baileys').WA_Events['group-update']} m
+ * @param {Object} options
+ * @param {Function} options.isBotAdmin
+ */
+async function onGroupUpdate(conn, m, { isBotAdmin }) {
+  // --- GUARDIE DI SICUREZZA ---
+  if (!m || !m.chat || !isBotAdmin) return
+  
+  const chat = global.db.data.chats[m.chat]
+  if (!chat || !chat.antiNuke) return
 
-// --- HANDLER DI EVENTO (Da chiamare dal listener principale del bot) ---
-// Questa funzione DEVE essere chiamata per ogni messaggio in arrivo (messages.upsert)
-function handleAntinukeEvent(sock, antinukeService, logger) {
-    return async (msg) => {
-        // Supporta diverse shape dell'evento: estraiamo lo stub in modo sicuro
-        const key = msg.key || (msg.message && msg.message.key) || {};
-        const message = msg.message || {};
-        // messageStubType può essere in msg.messageStubType o msg.message.messageStubType o msg.messageStubType
-        const messageStubType = msg.messageStubType ?? message.messageStubType ?? msg.message?.messageStubType ?? null;
-        const groupJid = key.remoteJid;
-        
-        if (!groupJid?.endsWith('@g.us')) return;
-
-        // Compatibilità Baileys: vecchi e nuovi codici
-        const adminPromotionCodes = [1, 29];  // promozione admin
-        const adminDemotionCodes  = [2, 30];  // retrocessione admin
-        const kickCodes = [40];               // rimozione partecipante (kick)
-        
-        // Safety: se non abbiamo un stub, esci
-        if (messageStubType === null) return;
-
-        const isAdminPromotion = adminPromotionCodes.includes(messageStubType);
-        const isAdminDemotion  = adminDemotionCodes.includes(messageStubType);
-        const isAdminChange    = isAdminPromotion || isAdminDemotion;
-        const isKick           = kickCodes.includes(messageStubType);
-
-        // debug log utile per capire cosa arriva (rimuovi in produzione se vuoi)
-        logger.debug({ jid: groupJid, stub: messageStubType }, `ANTINUKE: received stub ${messageStubType}`);
-
-        if (isAdminChange) {
-            const isEnabled = await antinukeService.isEnabled(groupJid);
-            if (isEnabled) {
-                logger.info({ jid: groupJid, stub: messageStubType }, 'ANTINUKE: admin change rilevato — eseguo enforcement');
-                await enforceAntinuke(sock, antinukeService, groupJid, logger);
-            }
-            return;
-        }
-
-        if (isKick) {
-            const isEnabled = await antinukeService.isEnabled(groupJid);
-            if (isEnabled) {
-                // chi ha kikkato e chi è stato kikkato possono essere in messageStubParameters
-                const params = msg.messageStubParameters || message.messageStubParameters || [];
-                const whoWasKicked = params[0] || 'sconosciuto';
-                const whoDidIt = msg.participant || message.participant || 'sconosciuto';
-                logger.warn({ jid: groupJid, by: whoDidIt, victim: whoWasKicked }, 'ANTIKICK: kick rilevato');
-
-                await enforceAntinuke(sock, antinukeService, groupJid, logger);
-
-                await sock.sendMessage(groupJid, {
-                    text: `🛡️ *ANTI-KICK ATTIVO*\nUn kick è stato rilevato (${whoDidIt} → ${whoWasKicked}). Admin esterni rimossi.`
-                });
-            }
-            return;
-        }
-
-        // altri messageStubType ignora
-        return;
-    };
+  // --- LOGICA ANTI-IMPOSTAZIONI (Protezione secondaria) ---
+  
+  // Se 'announce' è 'false', significa che TUTTI possono parlare.
+  // L'AntiNuke lo reimposta a 'true' (solo admin).
+  if (m.announce === false) {
+    try {
+      await conn.groupSettingUpdate(m.chat, 'announcement')
+      await conn.reply(m.chat, `*[🚨 ANTI-NUKE] Rilevata apertura dei messaggi a tutti. Il gruppo è stato reimpostato su "Solo Amministratori".*`)
+    } catch (e) {
+      console.error(`[AntiNuke] Fallito reset 'announce':`, e)
+    }
+  }
+  
+  // Se 'restrict' è 'false', significa che TUTTI possono modificare le info.
+  // L'AntiNuke lo reimposta a 'true' (solo admin).
+  if (m.restrict === false) {
+    try {
+      // 'not_restrict' è il comando baileys per impostare "solo admin modificano"
+      await conn.groupSettingUpdate(m.chat, 'not_restrict')
+      await conn.reply(m.chat, `*[🚨 ANTI-NUKE] Rilevata apertura modifica info. Il gruppo è stato reimpostato su "Solo Amministratori".*`)
+    } catch (e) {
+      console.error(`[AntiNuke] Fallito reset 'restrict':`, e)
+    }
+  }
 }
 
+/* ===========================
+   HANDLER PRINCIPALE (Comando .antinuke on/off)
+   =========================== */
+let handler = async (m, { conn, args, isAdmin, isBotAdmin, isOwner, usedPrefix, command }) => {
+  // Solo gli amministratori o il proprietario del bot possono usare il comando
+  if (!isAdmin && !isOwner) {
+    return m.reply('*[🔒] Questo comando è riservato agli amministratori del gruppo.*')
+  }
 
-// --- CREAZIONE DEL COMMAND REGISTRY (Funzione principale di comando) ---
-function createCommandRegistry(dependencies) {
-  const {
-    sock, 
-    logger,
-    antinukeService, 
-    // ... altre dipendenze ...
-  } = dependencies;
+  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
+  let chat = global.db.data.chats[m.chat]
 
-  const commands = [
-    // === COMANDO PRINCIPALE: ANTINUKE (Visualizza Bottoni) ===
-    {
-      name: 'antinuke',
-      usage: 'antinuke',
-      minLevel: PermissionLevel.WHITELIST, 
-      description: 'Gestisce la protezione antinuke del gruppo tramite bottoni.',
-      handler: async (context) => {
-        const remoteJid = context.remoteJid;
-        if (!remoteJid?.endsWith('@g.us') || !antinukeService) {
-          return { text: 'Il servizio antinuke non è disponibile o non sei in un gruppo.' };
-        }
-        
-        const isEnabled = await antinukeService.isEnabled(remoteJid);
-        const statusText = isEnabled ? '🟢 ATTIVO' : '🔴 DISATTIVO';
-        
-        // ID statici (senza prefisso) per la massima compatibilità con i bottoni
-        const buttons = [
-          { buttonId: 'antinuke_attiva', buttonText: { displayText: '🟢 Attiva Protezione' }, type: 1 },
-          { buttonId: 'antinuke_disattiva', buttonText: { displayText: '🔴 Disattiva Protezione' }, type: 1 }
-        ];
+  if (!args[0]) {
+    return m.reply(`*🛡️ Protezione AntiNuke MASSIVA 🛡️*
+Stato attuale: *${chat.antiNuke ? '✅ ATTIVO' : '❌ DISATTIVO'}*
 
-        const buttonMessage = {
-          text: `🛡️ **Stato AntiNuke:** *${statusText}*\n\nUsa i bottoni qui sotto per cambiare lo stato di protezione del gruppo.`,
-          footer: 'Bagley 2.0 AntiNuke Service',
-          buttons: buttons,
-          headerType: 1
-        };
+Usa:
+*${usedPrefix}antinuke on* - Attiva la protezione
+*${usedPrefix}antinuke off* - Disattiva la protezione
 
-        await sock.sendMessage(remoteJid, buttonMessage, { quoted: context.message });
-        return {}; 
-      }
-    },
+*Come funziona (Logica Aggressiva):*
+Se un admin (che non è il Proprietario del Bot o del Gruppo) tenta di rimuovere più di 1 persona:
+1.  Il bot declassa *istantaneamente tutti gli amministratori* non immuni.
+2.  Rimangono amministratori SOLO il Proprietario del Bot e il Proprietario del Gruppo.
+3.  I membri rimossi vengono riaggiunti.
+Inoltre, il bot impedirà che il gruppo venga aperto a tutti (per messaggi o modifica info).`)
+  }
 
-    // === COMANDO: ANTINUKE_ATTIVA (Gestisce il click del bottone) ===
-    {
-      name: 'antinuke_attiva', 
-      usage: 'antinuke_attiva',
-      minLevel: PermissionLevel.WHITELIST,
-      description: 'Attiva la protezione antinuke.',
-      handler: async (context) => {
-        const remoteJid = context.remoteJid;
-        if (!remoteJid?.endsWith('@g.us') || !antinukeService) return {};
+  if (args[0] === 'on') {
+    if (!isBotAdmin) return m.reply('*[🚨] Devo essere Amministratore per poter attivare l\'AntiNuke!*')
+    chat.antiNuke = true
+    return m.reply('*[✅] Protezione AntiNuke MASSIVA ATTIVATA.* Sarò vigile e aggressivo contro gli attacchi.')
+  } 
+  
+  if (args[0] === 'off') {
+    chat.antiNuke = false
+    return m.reply('*[❌] Protezione AntiNuke DISATTIVATA.* Il gruppo è vulnerabile.')
+  }
 
-        await antinukeService.setState(remoteJid, true);
-        return { text: '☢️ Antinuke attivato. Nessuno fa il figo.' };
-      }
-    },
-
-    // === COMANDO: ANTINUKE_DISATTIVA (Gestisce il click del bottone) ===
-    {
-      name: 'antinuke_disattiva', 
-      usage: 'antinuke_disattiva',
-      minLevel: PermissionLevel.WHITELIST,
-      description: 'Disattiva la protezione antinuke.',
-      handler: async (context) => {
-        const remoteJid = context.remoteJid;
-        if (!remoteJid?.endsWith('@g.us') || !antinukeService) return {};
-        
-        await antinukeService.setState(remoteJid, false);
-        return { text: '☢️ Antinuke disattivato. Diventerò possibilmente Oppenheimer.' };
-      }
-    },
-    
-    // === COMANDO DISTRUTTIVO: NUKE (Trigger di enforcement) ===
-    {
-      name: 'nuke',
-      usage: 'nuke',
-      minLevel: PermissionLevel.WHITELIST,
-      description: 'Comando distruttivo che resetta il gruppo.',
-      handler: async (context) => {
-        const remoteJid = context.remoteJid;
-        if (!remoteJid?.endsWith('@g.us')) return { text: 'Il comando nuke funziona solo nei gruppi.' };
-
-        if (antinukeService && (await antinukeService.isEnabled(remoteJid))) {
-          // 🛑 CHIAMATA ALLA FUNZIONE UNIFICATA DI DIFESA 🛑
-          await enforceAntinuke(sock, antinukeService, remoteJid, logger);
-          
-          return { text: '💥 Il gruppo è protetto dall\'AntiNuke. L\'amministrazione è stata resettata.' };
-        }
-        return {}; // Logica nuke se non protetto
-      }
-    },
-
-    // === COMANDO DISTRUTTIVO: RUB (Trigger di enforcement) ===
-    {
-      name: 'rub',
-      usage: 'rub',
-      minLevel: PermissionLevel.WHITELIST,
-      description: 'Comando distruttivo (rubare il controllo).',
-      handler: async (context) => {
-        const remoteJid = context.remoteJid;
-        if (!remoteJid?.endsWith('@g.us')) return { text: 'Il comando rub funziona solo nei gruppi.' };
-
-        if (antinukeService && (await antinukeService.isEnabled(remoteJid))) {
-          // 🛑 CHIAMATA ALLA FUNZIONE UNIFICATA DI DIFESA 🛑
-          await enforceAntinuke(sock, antinukeService, remoteJid, logger);
-
-          return { text: '🔒 Il gruppo è protetto dall\'AntiNuke. Rub non consentito e l\'amministrazione è stata resettata.' };
-        }
-        return {}; // Logica rub se non protetto
-      }
-    },
-  ];
-  return new Map(commands.map(cmd => [cmd.name, cmd]));
+  return m.reply(`Opzione non valida. Usa: *${usedPrefix}antinuke on* o *off*`)
 }
 
-module.exports = {
-    createCommandRegistry,
-    handleAntinukeEvent 
-};
+// Esporta i comandi e i listener
+handler.command = /^(antinuke)$/i
+handler.group = true
+handler.fail = null
+
+// Assegna i listener specifici agli handler corretti
+handler.participantsUpdate = onParticipantsUpdate
+handler.groupUpdate = onGroupUpdate
+
+export default handler
