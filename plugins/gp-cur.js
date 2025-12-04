@@ -1,4 +1,4 @@
-//Codice di gp-cur.js
+// gp-cur.js — Versione SENZA CANVAS
 
 import fetch from 'node-fetch'
 import fs from 'fs'
@@ -72,77 +72,40 @@ async function getRecentTracks(username, limit = 10) {
   return json?.recenttracks?.track || []
 }
 
-async function getTopArtists(username, period = '7day', limit = 9) {
-  const url = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${username}&api_key=${LASTFM_API_KEY}&format=json&period=${period}&limit=${limit}`
-  const json = await fetchWithCache(url)
-  return json?.topartists?.artist
-}
-
-async function getTopAlbums(username, period = '7day', limit = 9) {
-  const url = `https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=${username}&api_key=${LASTFM_API_KEY}&format=json&period=${period}&limit=${limit}`
-  const json = await fetchWithCache(url)
-  return json?.topalbums?.album
-}
-
-async function getTopTracks(username, period = '7day', limit = 9) {
-  const url = `https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${username}&api_key=${LASTFM_API_KEY}&format=json&period=${period}&limit=${limit}`
-  const json = await fetchWithCache(url)
-  return json?.toptracks?.track
-}
-
 const handler = async (m, { conn, args, usedPrefix, text, command }) => {
 
+  // 📌 Comando .setuser
   if (command === 'setuser') {
     const username = text.trim()
     if (!username) {
-      return conn.sendMessage(m.chat, { text: `❌ Usa il comando così: ${usedPrefix}setuser <username>` })
+      return conn.sendMessage(m.chat, { text: `❌ Usa: ${usedPrefix}setuser <username>` })
     }
     setLastfmUsername(m.sender, username)
     return conn.sendMessage(m.chat, { text: `✅ Username *${username}* salvato!` })
   }
 
+  // 🔒 Controllo se l'utente è registrato
   const user = getLastfmUsername(m.sender)
-
-  // 🔥 PULSANTE LAST.FM FUNZIONANTE
-if (!user) {
-  return conn.sendMessage(m.chat, {
-    text: `🎵 *Registrazione Last.fm richiesta*\n
-@${m.sender.split('@')[0]}, per usare i comandi musicali devi registrare il tuo username Last.fm.\n
-📱 *Usa questo comando:*\n${usedPrefix}setuser <tuo_username>`,
-    mentions: [m.sender],
-    buttons: [
-      {
-        name: 'cta_url',
-        buttonParamsJson: JSON.stringify({
-          display_text: '🌐 Vai su Last.fm',
-          url: 'https://last.fm/join'
-        })
-      }
-    ],
-    headerType: 1
-  })
-}
-
-  const parseOptions = (text) => {
-    let size = 3
-    let period = '7day'
-    const sizeMatch = text.match(/(\d)x\1/)
-    if (sizeMatch) size = parseInt(sizeMatch[1])
-    const periodMatch = text.match(/(1w|7day|1m|1month|3m|3month|6m|6month|1y|12month|overall)/i)
-    if (periodMatch) {
-      const map = {
-        '1w': '7day', '7day': '7day',
-        '1m': '1month', '1month': '1month',
-        '3m': '3month', '3month': '3month',
-        '6m': '6month', '6month': '6month',
-        '1y': '12month', '12month': '12month',
-        'overall': 'overall'
-      }
-      period = map[periodMatch[1].toLowerCase()] || '7day'
-    }
-    return { size, period }
+  if (!user) {
+    return conn.sendMessage(m.chat, {
+      text: `🎵 *Registrazione Last.fm richiesta*\n
+@${m.sender.split('@')[0]}, per usare i comandi musicali devi registrare il tuo username.\n
+📱 *Usa:* ${usedPrefix}setuser <username>`,
+      mentions: [m.sender],
+      buttons: [
+        {
+          name: 'cta_url',
+          buttonParamsJson: JSON.stringify({
+            display_text: '🌐 Vai su Last.fm',
+            url: 'https://last.fm/join'
+          })
+        }
+      ],
+      headerType: 1
+    })
   }
 
+  // 🎧 Comando .cur
   if (command === 'cur') {
     const track = await getRecentTrack(user)
     if (!track) return conn.sendMessage(m.chat, { text: '❌ Nessuna traccia trovata.' })
@@ -155,6 +118,7 @@ if (!user) {
 
     const info = await getTrackInfo(user, artist, title)
     const userInfo = await getUserInfo(user)
+
     const playcountTrack = info?.userplaycount || 0
     const totalScrobbles = userInfo?.playcount || 0
 
@@ -165,7 +129,7 @@ if (!user) {
 🎤 ${artist}
 💿 ${album}
 
-▶️ Ascolti di questo brano: *${playcountTrack}*
+▶️ Ascolti del brano: *${playcountTrack}*
 📊 Ascolti totali: *${totalScrobbles}*
     `.trim()
 
@@ -188,12 +152,22 @@ if (!user) {
     return
   }
 
-  if (command === 'topartists' || command === 'topalbums' || command === 'toptracks' || command === 'cronologia') {
-    // Lascia invariato
+  // 📜 Cronologia (solo testo)
+  if (command === 'cronologia') {
+    const tracks = await getRecentTracks(user, 10)
+    if (!tracks.length) return conn.sendMessage(m.chat, { text: '❌ Nessuna cronologia trovata.' })
+
+    const trackList = tracks.map((track, i) => {
+      const icon = track['@attr']?.nowplaying === 'true' ? '▶️' : `${i + 1}.`
+      return `${icon} *${track.name}*\n   🖌️ ${track.artist['#text']}`
+    }).join('\n\n')
+
+    await conn.sendMessage(m.chat, { text: `📜 *Cronologia di ${user}*\n\n${trackList}` })
+    return
   }
 }
 
-handler.command = ['setuser', 'cur', 'topartists', 'topalbums', 'toptracks', 'cronologia']
+handler.command = ['setuser', 'cur', 'cronologia']
 handler.group = true
 
 export default handler
