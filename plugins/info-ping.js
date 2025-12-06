@@ -1,10 +1,10 @@
 import fs from "fs"
 import { performance } from "perf_hooks"
+import Jimp from "jimp"
 
 let handler = async (m, { conn }) => {
   const start = performance.now()
 
-  // invio messaggio rapido per misurare ping reale
   await conn.sendMessage(m.chat, { text: "⌛ Test ping..." })
 
   const ping = performance.now() - start
@@ -18,11 +18,18 @@ let handler = async (m, { conn }) => {
     return `${h}h ${m}m ${s}s`
   }
 
-  // Thumbnail locale
   const thumbnailPath = "media/ping.jpeg"
-  const thumbBuffer = fs.existsSync(thumbnailPath)
-    ? fs.readFileSync(thumbnailPath)
-    : null
+  let thumbBuffer = null
+
+  try {
+    if (fs.existsSync(thumbnailPath)) {
+      let image = await Jimp.read(thumbnailPath)
+      image.resize(300, Jimp.AUTO).quality(70)         // <<< riduce dimensioni
+      thumbBuffer = await image.getBufferAsync(Jimp.MIME_JPEG)
+    }
+  } catch (e) {
+    console.error("Errore nel caricare la thumbnail:", e)
+  }
 
   const textMsg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
 │ 🕐 *Uptime:* ${formatTime(uptime)}
@@ -35,9 +42,9 @@ let handler = async (m, { conn }) => {
     contextInfo: {
       externalAdReply: {
         title: "📡 Stato del Bot",
-        body: "Monitoraggio prestazioni",
+        body: "𝔻𝕋ℍ-𝔹𝕆𝕋",
         mediaType: 1,
-        thumbnail: thumbBuffer,       // <<< THUMBNAIL FUNZIONANTE
+        thumbnail: thumbBuffer ?? undefined, 
         renderLargerThumbnail: true
       }
     }
