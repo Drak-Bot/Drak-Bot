@@ -1,45 +1,77 @@
-let { downloadContentFromMessage } = (await import('@realvare/based'));
+import { downloadContentFromMessage } from '@realvare/based'
 
 let handler = async (m, { conn }) => {
-    if (!m.quoted) throw '📸 *Rispondi ad una foto o video 1 visualizzazione*!'
+    try {
+        if (!m.quoted) {
+            throw '『 ⚠️ 』- `Rispondi a un contenuto visualizzabile una volta`'
+        }
+        if (!m.quoted?.viewOnce) {
+            throw '『 ⚠️ 』- `Questo non è un contenuto visualizzabile una volta`'
+        }
 
-    // Controllo dei tipi validi
-    let q = m.quoted;
-    if (!/viewOnceMessage|viewOnceMessageV2/i.test(q.mtype))
-        throw '❌ *Questo non è un messaggio 1 visualizzazione!*'
+        const mtype = m.quoted.mtype
+        let buffer
+        const downloadFromStream = async (stream) => {
+            let buffer = Buffer.from([])
+            for await (const chunk of stream) {
+                buffer = Buffer.concat([buffer, chunk])
+            }
+            return buffer
+        }
+        if (/videoMessage/.test(mtype)) {
+            try {
+                const stream = await downloadContentFromMessage(m.quoted.videoMessage, 'video')
+                buffer = await downloadFromStream(stream)
+            } catch (err) {
+                console.warn('Fallback al metodo download() per video:', err.message)
+                buffer = await m.quoted.download()
+            }
+        } else if (/imageMessage/.test(mtype)) {
+            try {
+                const stream = await downloadContentFromMessage(m.quoted.imageMessage, 'image')
+                buffer = await downloadFromStream(stream)
+            } catch (err) {
+                console.warn('Fallback al metodo download() per immagine:', err.message)
+                buffer = await m.quoted.download()
+            }
+        } else if (/audioMessage/.test(mtype)) {
+            try {
+                const stream = await downloadContentFromMessage(m.quoted.audioMessage, 'audio')
+                buffer = await downloadFromStream(stream)
+            } catch (err) {
+                console.warn('Fallback al metodo download() per audio:', err.message)
+                buffer = await m.quoted.download()
+            }
+        } else {
+            throw '❌ Formato non supportato'
+        }
+        if (!buffer || buffer.length === 0) {
+            throw '❌ Impossibile scaricare il contenuto'
+        }
 
-    // Estraggo il contenuto reale
-    let realMsg = q.message?.viewOnceMessageV2?.message || 
-                  q.message?.viewOnceMessage?.message;
-
-    if (!realMsg) throw '⚠️ Non riesco a trovare il contenuto del view once.'
-
-    let type = Object.keys(realMsg)[0]; // imageMessage o videoMessage
-
-    if (!/imageMessage|videoMessage/i.test(type))
-        throw '❌ *Il contenuto non è una foto/video.*'
-
-    // Scarico il media
-    let media = await downloadContentFromMessage(
-        realMsg[type],
-        type === 'imageMessage' ? 'image' : 'video'
-    );
-
-    let buffer = Buffer.from([]);
-    for await (const chunk of media) {
-        buffer = Buffer.concat([buffer, chunk]);
+        const caption = m.quoted?.caption || ''
+        if (/videoMessage/.test(mtype)) {
+            await conn.sendFile(m.chat, buffer, 'video.mp4', caption, m)
+        } else if (/imageMessage/.test(mtype)) {
+            await conn.sendFile(m.chat, buffer, 'image.jpg', caption, m)
+        } else if (/audioMessage/.test(mtype)) {
+            await conn.sendFile(m.chat, buffer, 'audio.mp3', '', m, false, {
+                mimetype: 'audio/mp4',
+                ptt: m.quoted.ptt || false
+            })
+        }
+        
+    } catch (e) {
+        console.error('Errore nel rivelare view once:', e)
+        const errorMessage = typeof e === 'string' ? e : global.errore || '❌ Si è verificato un errore'
+        await m.reply(errorMessage)
     }
+}
 
-    // Invio file rivelato
-    if (type === 'videoMessage') {
-        await conn.sendFile(m.chat, buffer, 'revealed.mp4', realMsg[type].caption || '', m);
-    } else {
-        await conn.sendFile(m.chat, buffer, 'revealed.jpg', realMsg[type].caption || '', m);
-    }
-};
+handler.help = ['rivela']
+handler.tags = ['strumenti']
+handler.command = ['readviewonce', 'rivela', 'viewonce']
+handler.group = true
+handler.admin = true
 
-handler.help = ['readvo'];
-handler.tags = ['tools'];
-handler.command = ['readviewonce', 'nocap', 'rivela', 'readvo'];
-
-export default handler;
+export default handler
