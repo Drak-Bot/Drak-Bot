@@ -1,108 +1,62 @@
-import yts from "yt-search";
-import axios from "axios";
+import yts from "yt-search"
+import fetch from "node-fetch"
 
-const MAX_DURATION = 600; // 5 minuti
+const handler = async (m, { conn, text, command, usedPrefix }) => {
+  if (!text)
+    return m.reply(`❗ Inserisci il titolo o il link YouTube`)
 
-// API stabile
-const API = "https://api.akuari.my.id/downloader/yt1?link=";
+  const search = await yts(text)
+  const video = search.videos[0]
+  if (!video) return m.reply("❗ Nessun risultato trovato.")
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
+  const url = video.url
+  const title = video.title
+
+  // 🔥 API SICURE FUNZIONANTI
+  const AUDIO_API = `https://api.guruapi.tech/api/ytmp3?url=${encodeURIComponent(url)}`
+  const VIDEO_API = `https://api.guruapi.tech/api/ytmp4?url=${encodeURIComponent(url)}`
+
   try {
-    if (!text) {
-      return conn.sendMessage(m.chat, { 
-        text: `❗ *Inserisci un titolo o un link YouTube*`
-      }, { quoted: m });
-    }
-
-    // ────── PLAY AUDIO ──────
-    if (command === "playaudio") {
-      const search = await yts(text);
-      if (!search.all.length) {
-        return conn.sendMessage(m.chat, { text: "❗ Nessun risultato trovato" }, { quoted: m });
-      }
-
-      const video = search.videos[0];
-      const res = await axios.get(API + video.url);
-      const link = res.data?.mp3?.url;
-
-      if (!link) return conn.sendMessage(m.chat, { text: "❗ Errore nel download" });
-
-      await conn.sendMessage(m.chat, { text: "🎵 *Audio in arrivo…*" });
-
+    if (command === "play" || command === "play2") {
       return conn.sendMessage(m.chat, {
-        audio: { url: link },
-        mimetype: "audio/mpeg",
-        fileName: video.title + ".mp3"
-      }, { quoted: m });
-    }
-
-    // ────── PLAY VIDEO ──────
-    if (command === "playvideo") {
-      const search = await yts(text);
-      if (!search.all.length) {
-        return conn.sendMessage(m.chat, { text: "❗ Nessun risultato trovato" }, { quoted: m });
-      }
-
-      const video = search.videos[0];
-      const res = await axios.get(API + video.url);
-      const link = res.data?.mp4?.url;
-
-      if (!link) return conn.sendMessage(m.chat, { text: "❗ Errore nel download" });
-
-      await conn.sendMessage(m.chat, { text: "🎬 *Video in arrivo…*" });
-
-      return conn.sendMessage(m.chat, {
-        video: { url: link },
-        mimetype: "video/mp4",
-        caption: `🎬 *${video.title}*`
-      }, { quoted: m });
-    }
-
-    // ────── COMANDO PLAY (solo bottoni) ──────
-    if (command === "play") {
-      const search = await yts(text);
-      if (!search.all.length) {
-        return conn.sendMessage(m.chat, { text: "❗ Nessun risultato trovato" });
-      }
-
-      const video = search.videos[0];
-
-      if (video.seconds > MAX_DURATION) {
-        return conn.sendMessage(m.chat, { 
-          text: `❗ *Video troppo lungo*\nDurata massima: 5 minuti\nDurata: ${video.timestamp}`
-        });
-      }
-
-      const thumb = (await conn.getFile(video.thumbnail)).data;
-
-      return conn.sendMessage(m.chat, {
-        text: `🎵 *Risultato trovato*\n\n🎬 Titolo: ${video.title}\n⏳ Durata: ${video.timestamp}\n👀 Views: ${video.views}`,
+        text: `🎵 *${title}*\n\nScegli cosa scaricare 👇`,
         buttons: [
-          { buttonId: `${usedPrefix}playaudio ${video.url}`, buttonText: { displayText: "🎵 Scarica Audio" }, type: 1 },
-          { buttonId: `${usedPrefix}playvideo ${video.url}`, buttonText: { displayText: "🎬 Scarica Video" }, type: 1 },
-        ],
-        headerType: 4,
-        contextInfo: {
-          externalAdReply: {
-            title: video.title,
-            mediaUrl: video.url,
-            sourceUrl: video.url,
-            thumbnail: thumb,
-            mediaType: 1,
-            showAdAttribution: true,
-          }
-        }
-      }, { quoted: m });
+          { buttonId: `${usedPrefix}playaudio ${url}`, buttonText: { displayText: "🎧 Audio" }, type: 1 },
+          { buttonId: `${usedPrefix}playvideo ${url}`, buttonText: { displayText: "🎬 Video" }, type: 1 }
+        ]
+      }, { quoted: m })
+    }
+
+    if (command === "playaudio") {
+      let res = await fetch(AUDIO_API).then(a => a.json())
+      if (!res?.url) return m.reply("❗ Errore nel download audio")
+
+      return conn.sendMessage(m.chat, {
+        audio: { url: res.url },
+        mimetype: "audio/mpeg",
+        fileName: `${title}.mp3`
+      }, { quoted: m })
+    }
+
+    if (command === "playvideo") {
+      let res = await fetch(VIDEO_API).then(a => a.json())
+      if (!res?.url) return m.reply("❗ Errore nel download video")
+
+      return conn.sendMessage(m.chat, {
+        video: { url: res.url },
+        mimetype: "video/mp4",
+        fileName: `${title}.mp4`,
+        caption: title
+      }, { quoted: m })
     }
 
   } catch (e) {
-    console.log(e);
-    conn.sendMessage(m.chat, { text: `❗ Errore: ${e.message}` });
+    console.log(e)
+    return m.reply("❗ Errore interno, riprova tra poco")
   }
-};
+}
 
-handler.help = ["play", "playaudio", "playvideo"];
-handler.tags = ["downloader"];
-handler.command = ["play", "playaudio", "playvideo"];
+handler.command = ['play', 'play2', 'playaudio', 'playvideo']
+handler.tags = ['downloader']
 
-export default handler;
+export default handler
