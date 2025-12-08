@@ -1,28 +1,28 @@
 let handler = async (m, { conn }) => {
     try {
-        // Controlla se è un aggiornamento di partecipanti
-        if (!m.message || !m.isGroup) return;
+        const { participants, action, id } = m;
 
-        const update = m.message?.groupParticipantsUpdateMessage;
-        if (!update) return;
+        // Non è un update di partecipanti → ignora
+        if (!participants || !action) return;
 
-        // Chi è stato aggiunto
-        const added = update.participants; // array di jid
+        // Numero del bot
+        const botId = conn.user.id.split(":")[0];
 
-        // Controlla se il bot è tra i nuovi membri
-        const botNumber = conn.user.id.split(":")[0];
-        if (added.includes(botNumber)) {
-            await conn.sendMessage(m.key.remoteJid, { text: "𝐂𝐢𝐚𝐨 𝐟𝐫𝐨𝐜𝐢 𝐝𝐞 𝐦𝐞𝐫𝐝𝐚" });
+        // Se il bot è stato aggiunto o è entrato
+        if ((action === "add" || action === "invite") && participants.includes(botId)) {
+            await conn.sendMessage(m.chat, { 
+                text: "𝐂𝐢𝐚𝐨 𝐟𝐫𝐨𝐜𝐢 𝐝𝐞 𝐦𝐞𝐫𝐝𝐚" 
+            });
         }
 
     } catch (err) {
-        console.error(err);
+        console.error("Errore evento join bot:", err);
     }
 }
 
-handler.all = true; // ascolta tutti gli eventi
-handler.help = ['greetOnJoin']
-handler.tags = ['group']
-handler.command = /^$/  // nessun comando
+handler.participants = true; // 🔥 fondamentale
+handler.help = ['greetOnJoin'];
+handler.tags = ['group'];
+handler.command = /^$/; // nessun comando
 
 export default handler;
