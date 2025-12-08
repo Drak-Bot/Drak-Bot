@@ -221,15 +221,12 @@ const question = (t) => {
 let opzione;
 if (!methodCodeQR && !methodCode && !fs.existsSync(`./${authFile}/creds.json`)) {
   do {
-    const menu = `╭★────★────★────★────★────★
-│      ꒰ ¡METODO DI COLLEGAMENTO! ꒱
-│
-│  👾  Opzione 1: Codice QR
-│  ☁️  Opzione 2: Codice 8 caratteri
-│
-╰★────★────★────★────★────★
-               ꒷꒦ ✦ ChatUnity ✦ ꒷꒦
-╰♡꒷ ๑ ⋆˚₊⋆───ʚ˚ɞ───⋆˚₊⋆ ๑ ⪩﹐
+    const menu = `
+   METODO DI COLLEGAMENTO
+🗿  Opzione 1: Codice QR
+🗿  Opzione 2: Codice 8 caratteri
+
+  By りｲん乃のｲ // ᴅᴛʜ-ʙᴏᴛ
 `;
     opzione = await question(menu + '\nInserisci la tua scelta ---> ');
     if (!/^[1-2]$/.test(opzione)) {
@@ -394,9 +391,8 @@ async function connectionUpdate(update) {
 
   if (qr && (opzione === '1' || methodCodeQR) && !global.qrGenerated) {
     console.log(chalk.bold.yellow(`
-┊ ┊ ┊ ┊‿ ˚➶ ｡˚   SCANSIONA IL CODICE QR
-┊ ┊ ┊ ˚✧ Scade tra 45 secondi
-┊ ˚➶ ｡˚ ☁︎ 
+    SCANSIONA IL CODICE QR
+Scade tra 60 secondi 
 `));
     global.qrGenerated = true;
   }
@@ -405,14 +401,14 @@ async function connectionUpdate(update) {
     global.qrGenerated = false;
     global.connectionMessagesPrinted = {};
     if (!global.isLogoPrinted) {
-      const chatunity = chalk.hex('#3b0d95')(` ██████╗██╗  ██╗ █████╗ ████████╗██╗   ██╗███╗   ██╗██╗████████╗██╗   ██╗
-██╔════╝██║  ██║██╔══██╗╚══██╔══╝██║   ██║████╗  ██║██║╚══██╔══╝╚██╗ ██╔╝
-██║     ███████║███████║   ██║   ██║   ██║██╔██╗ ██║██║   ██║    ╚████╔╝ 
-██║     ██╔══██║██╔══██║   ██║   ██║   ██║██║╚██╗██║██║   ██║     ╚██╔╝  
-╚██████╗██║  ██║██║  ██║   ██║   ╚██████╔╝██║ ╚████║██║   ██║      ██║   
- ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝      ╚═╝   
-                                                                          `);
-      console.log(chatunity);
+      const DTH BOT = chalk.hex('#3b0d95')(` _____  _____ _   _     ____   ____  _____ 
+|  __ \|_   _| \ | |   |  _ \ / __ \|_   _|
+| |  | | | | |  \| |   | |_) | |  | | | |  
+| |  | | | | | . ` |   |  _ <| |  | | | |  
+| |__| |_| |_| |\  |   | |_) | |__| |_| |_ 
+|_____/|_____|_| \_|   |____/ \____/|_____|
+`);
+      console.log(DTH-BOT);
       global.isLogoPrinted = true;
       await chatunityedition();
     }
@@ -438,22 +434,22 @@ async function connectionUpdate(update) {
       global.connectionMessagesPrinted.badSession = true;
       await global.reloadHandler(true).catch(console.error);
     } else if (reason === DisconnectReason.connectionLost && !global.connectionMessagesPrinted.connectionLost) {
-      console.log(chalk.bold.blueBright(`\n╭⭑⭒━━━✦❘༻ ⚠️  CONNESSIONE PERSA COL SERVER ༺❘✦━━━⭒⭑\n┃      🔄 RICONNESSIONE IN CORSO... \n╰⭑⭒━━━✦❘༻☾⋆₊✧ chatunity-bot ✧₊⁺⋆☽༺❘✦━━━⭒⭑`));
+      console.log(chalk.bold.blueBright(`\n ⚠️  CONNESSIONE PERSA COL SERVER \n┃      🔄 RICONNESSIONE IN CORSO... \n𝔻𝕋ℍ𝔹𝕆𝕋`));
       global.connectionMessagesPrinted.connectionLost = true;
       await global.reloadHandler(true).catch(console.error);
     } else if (reason === DisconnectReason.connectionReplaced && !global.connectionMessagesPrinted.connectionReplaced) {
-      console.log(chalk.bold.yellowBright(`╭⭑⭒━━━✦❘༻ ⚠️  CONNESSIONE SOSTITUITA ༺❘✦━━━⭒⭑\n┃  È stata aperta un'altra sessione, \n┃  chiudi prima quella attuale.\n╰⭑⭒━━━✦❘༻☾⋆⁺₊✧ chatunity-bot ✧₊⁺⋆☽༺❘✦━━━⭒⭑`));
+      console.log(chalk.bold.yellowBright(` ⚠️  CONNESSIONE SOSTITUITA \n┃  È stata aperta un'altra sessione, \n┃  chiudi prima quella attuale.\n𝔻𝕋ℍ𝔹𝕆𝕋`));
       global.connectionMessagesPrinted.connectionReplaced = true;
     } else if (reason === DisconnectReason.loggedOut && !global.connectionMessagesPrinted.loggedOut) {
       console.log(chalk.bold.redBright(`\n⚠️ DISCONNESSO, ELIMINA LA CARTELLA ${global.authFile} E SCANSIONA IL CODICE QR ⚠️`));
       global.connectionMessagesPrinted.loggedOut = true;
       await global.reloadHandler(true).catch(console.error);
     } else if (reason === DisconnectReason.restartRequired && !global.connectionMessagesPrinted.restartRequired) {
-      console.log(chalk.bold.magentaBright(`\n⭑⭒━━━✦❘༻ CONNESSO CON SUCCESSO  ༺❘✦━━━⭒⭑`));
+      console.log(chalk.bold.magentaBright(`\n✅ CONNESSO CON SUCCESSO `));
       global.connectionMessagesPrinted.restartRequired = true;
       await global.reloadHandler(true).catch(console.error);
     } else if (reason === DisconnectReason.timedOut && !global.connectionMessagesPrinted.timedOut) {
-      console.log(chalk.bold.yellowBright(`\n╭⭑⭒━━━✦❘༻ ⌛ TIMEOUT CONNESSIONE ༺❘✦━━━⭒⭑\n┃     🔄 RICONNESSIONE IN CORSO...\n╰⭑⭒━━━✦❘༻☾⋆⁺₊✧ chatunity-bot ✧₊⁺⋆☽༺❘✦━━━⭒⭑`));
+      console.log(chalk.bold.yellowBright(`\n╭⭑⭒━━━✦❘༻ ⌛ TIMEOUT CONNESSIONE \n┃     🔄 RICONNESSIONE IN CORSO...\n𝔻𝕋ℍ𝔹𝕆𝕋`));
       global.connectionMessagesPrinted.timedOut = true;
       await global.reloadHandler(true).catch(console.error);
     } else if (reason !== DisconnectReason.restartRequired && reason !== DisconnectReason.connectionClosed && !global.connectionMessagesPrinted.unknown) {
@@ -471,9 +467,9 @@ async function connectSubBots() {
     console.log(chalk.bold.magentaBright('non ci sono Sub-Bot collegati. Creazione directory...'));
     try {
       mkdirSync(subBotDirectory, { recursive: true });
-      console.log(chalk.bold.green('✅ Directory chatunity-sub creata con successo.'));
+      console.log(chalk.bold.green('✅ Directory DTH-sub creata con successo.'));
     } catch (err) {
-      console.log(chalk.bold.red('❌ Errore nella creazione della directory chatunity-sub:', err.message));
+      console.log(chalk.bold.red('❌ Errore nella creazione della directory DTH-sub:', err.message));
       return;
     }
     return;
@@ -532,9 +528,7 @@ async function connectSubBots() {
     conn.ev.on('connection.update', connectionUpdate);
     conn.ev.on('creds.update', saveCreds);
     console.log(chalk.bold.magenta(`
-╭﹕₊˚ ★ ⁺˳ꕤ₊⁺・꒱
-  ⋆  ︵︵ ★ ChatUnity connesso ★ ︵︵ ⋆
-╰. ꒷꒦ ꒷꒦‧˚₊˚꒷꒦꒷‧˚₊˚꒷꒦꒷‧˚₊꒷꒦‧˚₊`));
+ ★ DTH-BOT connesso ★`));
     await connectSubBots();
   } catch (error) {
     console.error(chalk.bold.bgRedBright(`🥀 Errore nell'avvio del bot: `, error));
