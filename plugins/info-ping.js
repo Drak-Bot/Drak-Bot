@@ -2,10 +2,10 @@ import fs from "fs"
 import { performance } from "perf_hooks"
 import Jimp from "jimp"
 
-let handler = async (m, { conn, usedPrefix }) => {
+let handler = async (m, { conn }) => {
   const start = performance.now()
 
-  await conn.sendMessage(m.chat, { text: "*Sto facendo il Test del Ping...⏳*" })
+  await conn.sendMessage(m.chat, { text: "Sto facendo il Test del Ping...⏳" })
 
   const ping = performance.now() - start
   const uptime = process.uptime() * 1000
@@ -24,11 +24,11 @@ let handler = async (m, { conn, usedPrefix }) => {
   try {
     if (fs.existsSync(thumbnailPath)) {
       let image = await Jimp.read(thumbnailPath)
-      image.resize(400, Jimp.AUTO).quality(90)
-      thumbBuffer = await image.getBufferAsync(Jimp.MIME_PNG) // <-- PNG FUNZIONA SEMPRE
+      image.resize(150, Jimp.AUTO).quality(70) // 🟡 THUMBNAIL PICCOLA
+      thumbBuffer = await image.getBufferAsync(Jimp.MIME_JPEG)
     }
   } catch (e) {
-    console.error("Errore caricando la thumbnail:", e)
+    console.error("Errore nel caricare la thumbnail:", e)
   }
 
   const textMsg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
@@ -41,30 +41,22 @@ let handler = async (m, { conn, usedPrefix }) => {
     m.chat,
     {
       text: textMsg,
-      footer: "📡 Ping di 𝔻𝕋ℍ-𝔹𝕆𝕋",
-      buttons: [
-        { buttonId: `${usedPrefix}ping`, buttonText: { displayText: "⏳ 𝐑𝐢𝐟𝐚𝐢 𝐏𝐢𝐧𝐠" }, type: 1 },
-        { buttonId: `${usedPrefix}ds`, buttonText: { displayText: "🗑️ 𝐃𝐬" }, type: 1 }
-      ],
-      headerType: 1,
-
       contextInfo: {
         externalAdReply: {
           title: "📡 Stato del Bot",
-          body: "DTH-BOT",
+          body: "𝔻𝕋ℍ-𝔹𝕆𝕋",
           mediaType: 1,
-          thumbnail: thumbBuffer, // FUNZIONA
-          sourceUrl: "https://google.com", // OBBLIGATORIO, anche finto
-          renderLargerThumbnail: true,
-        }
-      }
+          thumbnail: thumbBuffer ?? undefined, // 🟡 MINIATURA
+          // rimosso renderLargerThumbnail → ora è piccola
+        },
+      },
     },
     { quoted: m }
   )
 }
 
-handler.help = ["ping", "status", "uptime"]
+handler.help = ["status", "uptime"]
 handler.tags = ["info"]
-handler.command = /^(ping|status|uptime)$/i
+handler.command = /^status|uptime|ping$/i
 
 export default handler
