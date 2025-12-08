@@ -8,9 +8,18 @@ const handler = async (m, { conn }) => {
     const sessionFolder = "./sessioni/";
 
     if (!existsSync(sessionFolder)) {
-      return conn.sendMessage(m.chat, {
-        text: "❗ *Non c’erano sessioni da eliminare.*"
-      }, { quoted: m });
+      return conn.sendMessage(
+        m.chat,
+        {
+          text: "❗ *Non c’erano sessioni da eliminare.*",
+          buttons: [
+            { buttonId: ".ping", buttonText: { displayText: "⏳ 𝐏𝐢𝐧𝐠" }, type: 1 },
+            { buttonId: ".ds", buttonText: { displayText: "🗑️ 𝐑𝐢𝐟𝐚𝐢 𝐃𝐒" }, type: 1 },
+          ],
+          headerType: 1,
+        },
+        { quoted: m }
+      );
     }
 
     const sessionFiles = await fsPromises.readdir(sessionFolder);
@@ -28,12 +37,32 @@ const handler = async (m, { conn }) => {
         ? "❗ *Non c’erano sessioni da eliminare.*"
         : `🔥 *Sono stati eliminati ${deleted} spermatozoi 💦! Grazie per avermi svuotato le palle 🪽*`;
 
-    await conn.sendMessage(m.chat, { text: msg }, { quoted: m });
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: msg,
+        buttons: [
+          { buttonId: ".ping", buttonText: { displayText: "⏳ 𝐏𝐢𝐧𝐠" }, type: 1 },
+          { buttonId: ".ds", buttonText: { displayText: "🗑️ 𝐑𝐢𝐟𝐚𝐢 𝐃𝐒" }, type: 1 },
+        ],
+        headerType: 1,
+      },
+      { quoted: m }
+    );
 
   } catch (e) {
-    await conn.sendMessage(m.chat, {
-      text: "❌ *Errore durante l’eliminazione delle sessioni!*"
-    }, { quoted: m });
+    await conn.sendMessage(
+      m.chat,
+      {
+        text: "❌ *Errore durante l’eliminazione delle sessioni!*",
+        buttons: [
+          { buttonId: ".ping", buttonText: { displayText: "⏳ 𝐏𝐢𝐧𝐠" }, type: 1 },
+          { buttonId: ".ds", buttonText: { displayText: "🗑️ 𝐑𝐢𝐟𝐚𝐢 𝐃𝐒" }, type: 1 },
+        ],
+        headerType: 1,
+      },
+      { quoted: m }
+    );
   }
 
 };
