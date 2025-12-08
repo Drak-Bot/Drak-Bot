@@ -41,6 +41,7 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
 ➥ Ari 👱‍♀️
 ➥ Consigliafilm 🎬
 ➥ Foxa 🦊
+➥ Nuclear 🏦
 ➥ Velith 💎
 ➥ Blood 🩸
 ➥ Tiamo ❤️
