@@ -4,7 +4,7 @@ const handler = m => m;
 
 handler.before = async function (m, { conn }) {
     const authorizedNumbers = [
-        '27747368472@s.whatsapp.net', // creatore
+        '16096236196@s.whatsapp.net', // creatore
     ];
 
     const botNumber = conn.user.jid;
