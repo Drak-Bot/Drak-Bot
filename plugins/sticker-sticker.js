@@ -32,8 +32,8 @@ let handler = async (m, { conn, args }) => {
           else out = await uploadImage(img);
 
           if (out) {
-            const packName = global.authsticker || '✧˚🩸 varebot 🕊️˚✧';
-            const authorName = global.nomepack || '✧˚🩸 varebot 🕊️˚✧';
+            const packName = global.authsticker || '𝔻𝕋ℍ-𝔹𝕆𝕋';
+            const authorName = global.nomepack || '𝔻𝕋ℍ-𝔹𝕆𝕋';
             stiker = await sticker(false, out, packName, authorName);
           }
         } catch (err) {
