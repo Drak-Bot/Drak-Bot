@@ -1,9 +1,4 @@
-// Legge il messaggio indipendentemente dalla versione ChatUnity
-let msg =
-    message.body?.toLowerCase() ||
-    message.text?.toLowerCase() ||
-    message.message?.toLowerCase() ||
-    "";
+let msg = message.body?.toLowerCase() || "";
 
 // Lista auto
 const cars = {
@@ -14,32 +9,28 @@ const cars = {
     supergt: { name: "SuperGT", img: "https://i.imgur.com/NvQHF2A.png" }
 };
 
-// -------------------------------------------------------------------
-// LISTINO AUTO CON I PULSANTI
-// -------------------------------------------------------------------
-if (msg === ".compra_auto") {
+// --- Comando listino ---
+if(msg === ".compra_auto") {
     sendMessage({
         chatId: message.from,
         text: "🚘 *Autosalone – Seleziona un'auto:*",
         buttons: [
-            ["buy_sultan", "Sultan"],
-            ["buy_elegy", "Elegy"],
-            ["buy_banshee", "Banshee"],
-            ["buy_buffalo", "Buffalo"],
-            ["buy_supergt", "SuperGT"]
+            { id: "buy_sultan", text: "Sultan" },
+            { id: "buy_elegy", text: "Elegy" },
+            { id: "buy_banshee", text: "Banshee" },
+            { id: "buy_buffalo", text: "Buffalo" },
+            { id: "buy_supergt", text: "SuperGT" }
         ]
     });
     return;
 }
 
-// -------------------------------------------------------------------
-// RISPOSTA AI PULSANTI
-// -------------------------------------------------------------------
-if (message.buttonResponseId) {
-    const id = message.buttonResponseId.replace("buy_", ""); // es: elegy
-    const car = cars[id];
+// --- Risposta pulsanti ---
+if(message.selectedButtonId) {
+    const key = message.selectedButtonId.replace("buy_", "");
+    const car = cars[key];
 
-    if (!car) {
+    if(!car){
         sendMessage({
             chatId: message.from,
             text: "❌ Auto non valida."
@@ -52,6 +43,4 @@ if (message.buttonResponseId) {
         image: car.img,
         caption: `🚗 *Hai acquistato una ${car.name}!*`
     });
-
-    return;
 }
