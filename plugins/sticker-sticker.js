@@ -4,59 +4,65 @@ import uploadImage from '../lib/uploadImage.js'
 import { webp2png } from '../lib/webp2mp4.js'
 
 let handler = async (m, { conn, args }) => {
-    let stiker = false
+
+    let q = m.quoted ? m.quoted : m
+    let mime = (q.msg || q).mimetype || q.mediaType || ''
+
+    // nessun file trovato
+    if (!mime && !args[0])
+        return m.reply("❗ Rispondi a un'immagine/video/webp oppure metti un link valido.")
+
+    m.reply('⏳ *Sto creando lo sticker...*')
+
     try {
-        let q = m.quoted ? m.quoted : m
-        let mime = (q.msg || q).mimetype || q.mediaType || ''
+        let media = await q.download()
+        if (!media) return m.reply("❗ Non riesco a scaricare il file. Riprova.")
 
-        if (/webp|image|video/.test(mime)) {
-            if (/video/.test(mime)) {
-                if ((q.msg || q).seconds > 9)
-                    return m.reply("⚠️ Il video deve essere meno di 10 secondi")
-            }
+        let out
+        let stiker
 
-            m.reply('ⓘ 𝐂𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨 ...')
-
-            let img = await q.download?.()
-            if (!img) return m.reply("❌ Non riesco a scaricare il file.")
-
-            try {
-                stiker = await sticker(img, false, global.packname, global.author)
-            } catch (e) {
-                console.log("Sticker conversione diretta fallita:", e)
-            }
-
-            if (!stiker) {
-                let out
-
-                if (/webp/.test(mime)) out = await webp2png(img)
-                else if (/image/.test(mime)) out = await uploadImage(img)
-                else if (/video/.test(mime)) out = await uploadFile(img)
-
-                if (typeof out !== "string") out = await uploadImage(img)
-
-                stiker = await sticker(false, out, global.packname, global.author)
-            }
-
-        } else if (args[0]) {
-            if (isUrl(args[0])) {
-                stiker = await sticker(false, args[0], global.packname, global.author)
-            } else {
-                return m.reply("❌ URL non valido.")
-            }
+        try {
+            // tentativo diretto — preferito
+            stiker = await sticker(media, false, global.packname, global.author)
+        } catch (err) {
+            console.log("❌ Errore sticker diretto:", err)
         }
 
-    } catch (e) {
-        console.error("Sticker ERROR:", e)
-        return m.reply("❌ Errore nella creazione dello sticker.")
-    }
+        // se fallisce conversione diretta
+        if (!stiker) {
 
-    if (stiker) {
-        await conn.sendFile(m.chat, stiker, 'sticker.webp', '', m, null, {
-            asSticker: true
-        })
-    } else {
-        return m.reply("❌ Errore, nessuno sticker generato.")
+            // fallback conversioni
+            if (/webp/.test(mime)) {
+                out = await webp2png(media)
+            } else if (/image/.test(mime)) {
+                out = await uploadImage(media)
+            } else if (/video/.test(mime)) {
+                if ((q.msg || q).seconds > 10)
+                    return m.reply("⚠️ Il video deve essere meno di 10 secondi")
+                out = await uploadFile(media)
+            }
+
+            if (!out) return m.reply("❗ Errore nella conversione del file.")
+
+            // ultimo tentativo sticker
+            stiker = await sticker(false, out, global.packname, global.author)
+        }
+
+        if (!stiker) return m.reply("❗ Errore finale: impossibile creare lo sticker.")
+
+        // invio sticker garantito
+        return await conn.sendFile(
+            m.chat,
+            stiker,
+            "sticker.webp",
+            "",
+            m,
+            { asSticker: true }
+        )
+
+    } catch (e) {
+        console.error("STICKER ERROR:", e)
+        return m.reply("❗ Errore interno nella creazione dello sticker.")
     }
 }
 
@@ -65,7 +71,3 @@ handler.tags = ['sticker']
 handler.command = /^s(tic?ker)?(gif)?$/i
 
 export default handler
-
-const isUrl = (text) => {
-    return /https?:\/\/.*\.(jpe?g|gif|png|webp)/i.test(text)
-}
