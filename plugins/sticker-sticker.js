@@ -9,7 +9,6 @@ let handler = async (m, { conn, args }) => {
     let q = m.quoted ? m.quoted : m;
     let mime = (q.msg || q).mimetype || q.mediaType || '';
 
-    // Supporta solo immagini
     if (/image/.test(mime)) {
       let buffer = await q.download?.();
       if (!buffer) return m.reply('『 📸 』- Invia un\'immagine per creare uno sticker.', m);
@@ -17,9 +16,7 @@ let handler = async (m, { conn, args }) => {
       const packName = '𝔻𝕋ℍ-𝔹𝕆𝕋';
       const authorName = '𝔻𝕋ℍ-𝔹𝕆𝕋';
       stiker = await sticker(buffer, false, packName, authorName);
-    } 
-    // URL diretto
-    else if (args[0] && isUrl(args[0])) {
+    } else if (args[0] && isUrl(args[0])) {
       const packName = '𝔻𝕋ℍ-𝔹𝕆𝕋';
       const authorName = '𝔻𝕋ℍ-𝔹𝕆𝕋';
       stiker = await sticker(false, args[0], packName, authorName);
