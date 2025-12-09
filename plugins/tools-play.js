@@ -5,7 +5,7 @@ function downloadYTDLP(url, format = "best") {
   return new Promise((resolve, reject) => {
     const ytdlp = spawn("yt-dlp", [
       "-f", format,
-      "-o", "-", // output su stdout
+      "-o", "-",
       url
     ]);
 
@@ -23,39 +23,74 @@ function downloadYTDLP(url, format = "best") {
 }
 
 const handler = async (m, { conn, text, command }) => {
-  try {
-    if (!text) return conn.reply(m.chat, "Inserisci un titolo o link YouTube", m);
+  if (!text) return conn.reply(m.chat, "Inserisci un titolo o link YouTube", m);
 
-    let search = await yts(text);
-    let vid = search.videos[0];
-    if (!vid) return conn.reply(m.chat, "Nessun risultato trovato", m);
+  let search = await yts(text);
+  let vid = search.videos[0];
+  if (!vid) return conn.reply(m.chat, "Nessun risultato trovato", m);
 
-    let url = vid.url;
+  let url = vid.url;
+  let thumb = vid.thumbnail;
 
-    await conn.reply(m.chat, "⏳ Scarico…", m);
+  if (command === "playaudio-dl") {
+    try {
+      await conn.reply(m.chat, "🎵 Scarico l’audio…", m);
 
-    let buffer;
-    if (command === "playaudio") {
-      buffer = await downloadYTDLP(url, "bestaudio");
-      await conn.sendMessage(m.chat, {
-        audio: buffer,
-        mimetype: "audio/mpeg"
-      }, { quoted: m });
-    } else if (command === "playvideo") {
-      buffer = await downloadYTDLP(url, "best[ext=mp4]");
-      await conn.sendMessage(m.chat, {
-        video: buffer,
-        mimetype: "video/mp4"
-      }, { quoted: m });
-    } else {
-      await conn.reply(m.chat, `Trovato:\n🎵 ${vid.title}\n\nScegli formato:\n/playaudio ${url}\n/playvideo ${url}`, m);
+      let audio = await downloadYTDLP(url, "bestaudio");
+
+      return conn.sendMessage(
+        m.chat,
+        { audio, mimetype: "audio/mpeg" },
+        { quoted: m }
+      );
+
+    } catch (e) {
+      console.error(e);
+      return conn.reply(m.chat, "❗ Errore durante il download audio", m);
     }
-
-  } catch (e) {
-    console.log("ERRORE YTDLP:", e);
-    conn.reply(m.chat, "❗ Errore durante il download", m);
   }
+
+  if (command === "playvideo-dl") {
+    try {
+      await conn.reply(m.chat, "🎬 Scarico il video…", m);
+
+      let video = await downloadYTDLP(url, "best[ext=mp4]");
+
+      return conn.sendMessage(
+        m.chat,
+        { video, mimetype: "video/mp4" },
+        { quoted: m }
+      );
+
+    } catch (e) {
+      console.error(e);
+      return conn.reply(m.chat, "❗ Errore durante il download video", m);
+    }
+  }
+
+  // 🔥 QUI MOSTRA I BOTTONI DIRETTI
+  await conn.sendMessage(
+    m.chat,
+    {
+      image: { url: thumb },
+      caption: `🎶 *${vid.title}*\n\n⏱ Durata: ${vid.timestamp}\n👁️ Visualizzazioni: ${vid.views}\n\nScegli cosa scaricare:`,
+      buttons: [
+        {
+          buttonId: `.playaudio-dl ${url}`,
+          buttonText: { displayText: "🎵 Scarica Audio" },
+          type: 1
+        },
+        {
+          buttonId: `.playvideo-dl ${url}`,
+          buttonText: { displayText: "🎬 Scarica Video" },
+          type: 1
+        }
+      ],
+      headerType: 4
+    },
+    { quoted: m }
+  );
 };
 
-handler.command = ["play", "playaudio", "playvideo"];
+handler.command = ["play", "playaudio-dl", "playvideo-dl"];
 export default handler;
