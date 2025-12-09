@@ -1,6 +1,9 @@
+import { writeFile, unlink } from 'fs/promises';
 import { sticker } from '../lib/sticker.js';
 import uploadFile from '../lib/uploadFile.js';
 import uploadImage from '../lib/uploadImage.js';
+import path from 'path';
+import os from 'os';
 
 const isUrl = (text) => /(https?:\/\/.*\.(?:png|jpe?g|gif|webp))/i.test(text);
 
@@ -11,26 +14,26 @@ let handler = async (m, { conn, args }) => {
     let q = m.quoted ? m.quoted : m;
     let mime = (q.msg || q).mimetype || q.mediaType || '';
 
-    // Se è immagine, video o webp
     if (/image|video|webp/.test(mime)) {
-      // Controllo durata video
       if (/video/.test(mime) && (q.msg || q).seconds > 10) {
         return m.reply('『 ⏰ 』- Il video deve durare meno di 10 secondi per creare uno sticker.');
       }
 
-      let img;
-      if (q.download) img = await q.download(); // scarica il buffer
-      if (!img) return m.reply('『 📸 』- Invia un\'immagine, video o GIF per creare uno sticker.', m);
+      let buffer = await q.download?.();
+      if (!buffer) return m.reply('『 📸 』- Invia un\'immagine, video o GIF per creare uno sticker.', m);
+
+      // Salva il buffer su file temporaneo
+      const tempFile = path.join(os.tmpdir(), +new Date() + '.' + (mime.includes('video') ? 'mp4' : 'png'));
+      await writeFile(tempFile, buffer);
 
       try {
         const packName = global.authsticker || '✧˚🩸 varebot 🕊️˚✧';
         const authorName = global.nomepack || '✧˚🩸 varebot 🕊️˚✧';
-        stiker = await sticker(img, false, packName, authorName);
+        stiker = await sticker(tempFile, false, packName, authorName);
       } catch (e) {
         console.error('Errore creazione sticker diretta:', e);
         try {
-          // fallback upload
-          let out = /image/.test(mime) ? await uploadImage(img) : await uploadFile(img);
+          let out = /image/.test(mime) ? await uploadImage(buffer) : await uploadFile(buffer);
           if (out) {
             const packName = global.authsticker || '✧˚🩸 varebot 🕊️˚✧';
             const authorName = global.nomepack || '✧˚🩸 varebot 🕊️˚✧';
@@ -39,6 +42,9 @@ let handler = async (m, { conn, args }) => {
         } catch (err) {
           console.error('Errore fallback sticker:', err);
         }
+      } finally {
+        // elimina il file temporaneo
+        await unlink(tempFile).catch(() => {});
       }
     } else if (args[0] && isUrl(args[0])) {
       const packName = global.authsticker || '✧˚🩸 varebot 🕊️˚✧';
