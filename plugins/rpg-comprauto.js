@@ -1,43 +1,44 @@
-let msg = message.body?.toLowerCase() || "";
+// Legge il messaggio
+let msg = (message.body || "").toLowerCase();
 
-// Lista auto
-const cars = {
-    sultan: { name: "Sultan", img: "https://i.imgur.com/2L67zUY.png", price: 15000 },
-    elegy: { name: "Elegy", img: "https://i.imgur.com/JhWmY8W.png", price: 18000 },
-    banshee: { name: "Banshee", img: "https://i.imgur.com/Ae1nnCV.png", price: 22000 },
-    buffalo: { name: "Buffalo", img: "https://i.imgur.com/FfGgS74.png", price: 20000 },
-    supergt: { name: "SuperGT", img: "https://i.imgur.com/NvQHF2A.png", price: 30000 }
-};
+// Lista auto con immagine e prezzo
+const cars = [
+    { name: "Sultan", img: "https://i.imgur.com/2L67zUY.png", price: 15000 },
+    { name: "Elegy", img: "https://i.imgur.com/JhWmY8W.png", price: 18000 },
+    { name: "Banshee", img: "https://i.imgur.com/Ae1nnCV.png", price: 22000 },
+    { name: "Buffalo", img: "https://i.imgur.com/FfGgS74.png", price: 20000 },
+    { name: "SuperGT", img: "https://i.imgur.com/NvQHF2A.png", price: 30000 }
+];
 
-// --- Comando listino ---
+// --- Comando per mostrare listino ---
 if(msg === ".comprauto") {
-    let text = "🚘 *Autosalone – Seleziona un'auto:*";
-    let buttons = [];
-
-    for(const key in cars) {
-        buttons.push({ id: "buy_" + key, text: cars[key].name });
-    }
-
+    let text = "🚘 *Autosalone – Auto disponibili:*\n\n";
+    cars.forEach((car, index) => {
+        text += `${index + 1}) *${car.name}* – $${car.price}\n`;
+    });
+    text += `\nPer acquistare scrivi: .comprauto <numero>`;
+    
     sendMessage({
         chatId: message.from,
-        text,
-        buttons
+        text: text
     });
     return;
 }
 
-// --- Risposta pulsanti ---
-if(message.selectedButtonId) {
-    const key = message.selectedButtonId.replace("buy_", "");
-    const car = cars[key];
+// --- Comando per acquistare auto ---
+if(msg.startsWith(".comprauto ")) {
+    let args = msg.split(" ");
+    let num = parseInt(args[1]);
 
-    if(!car){
+    if(isNaN(num) || num < 1 || num > cars.length) {
         sendMessage({
             chatId: message.from,
-            text: "❌ Auto non valida."
+            text: "❌ Numero auto non valido."
         });
         return;
     }
+
+    let car = cars[num - 1];
 
     sendMessage({
         chatId: message.from,
