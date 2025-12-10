@@ -5,11 +5,11 @@ import Jimp from "jimp"
 let handler = async (m, { conn }) => {
   const start = performance.now()
 
-  await conn.sendMessage(m.chat, { text: "Sto facendo il Test del Ping...⏳" })
+  await conn.sendMessage(m.chat, { text: "𝐒𝐭𝐨 𝐟𝐚𝐜𝐞𝐧𝐝𝐨 𝐢𝐥 𝐭𝐞𝐬𝐭 𝐝𝐞𝐥 𝐏𝐢𝐧𝐠...⏳" })
 
   const ping = performance.now() - start
   const uptime = process.uptime() * 1000
-  const status = "🟢 Online"
+  const status = "🟢 𝐎𝐧𝐥𝐢𝐧𝐞"
 
   const formatTime = (ms) => {
     let h = Math.floor(ms / 3600000)
@@ -32,9 +32,9 @@ let handler = async (m, { conn }) => {
   }
 
   const textMsg = `╭─❖ 𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗢 ❖─⬣
-│ 🕐 *Uptime:* ${formatTime(uptime)}
-│ ⚡ *Ping:* ${ping.toFixed(0)} ms
-│ 📶 *Stato:* ${status}
+│ 🕐 𝐔𝐩𝐭𝐢𝐦𝐞: ${formatTime(uptime)}
+│ ⚡ 𝐏𝐢𝐧𝐠: ${ping.toFixed(0)} ms
+│ 📶 𝐒𝐭𝐚𝐭𝐨: ${status}
 ╰────────────────────⬣`
 
   await conn.sendMessage(
