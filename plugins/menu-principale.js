@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
  * e titolo personalizzato
  */
 function generateMenuText(userCount = 0) {
-  return `𝔻𝕋ℍ-𝔹𝕆𝕋 *Menu Principale*
+  return `𝔻𝔸ℕ𝔾𝔼ℝ 𝔹𝕆𝕋 *Menu Principale*
 
 Utenti registrati: *${userCount}*
 
@@ -29,11 +29,6 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
     // ===== TUO MENU TESTUALE PERSONALIZZATO =====
     const extraMenu = `\n🏠 *MENU PRINCIPALE*
 
-*Founder* :
-➥ 𝕯𝖊ⱥ𝖙𝖍 💀
-
-*Co-Founder* :
-➥ 𝑩𝑳𝑶𝑶𝑫 🩸
 
 ─────────────────────
 
@@ -55,7 +50,6 @@ const handler = async (message, { conn, usedPrefix = '.', command }) => {
 ➥ Creatore 👑
 
 *𝑽𝑬𝑹𝑺𝑰𝑶𝑵𝑬:* ${vs}
-*𝑪𝑶𝑳𝑳𝑨𝑩:* ${collab}
 `;
 
     const menuText = generateMenuText(userCount) + extraMenu;
