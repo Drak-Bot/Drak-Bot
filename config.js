@@ -5,9 +5,9 @@ import { fileURLToPath } from 'url';
 
 global.botnumber = '';
 global.confirmCode = '';
-global.nomebot = '𝔻𝕋ℍ-𝔹𝕆𝕋';
-global.packname = '𝔻𝕋ℍ-𝔹𝕆𝕋';
-global.author = '';
+global.nomebot = 'Danger Bot';
+global.packname = 'Danger Bot';
+global.author = 'Luxifear';
 global.vs = '𝟏.𝟎';
 global.collab = '𝔸𝕩𝕥𝕣𝕒𝕝_𝕎𝕚ℤ𝕒ℝ𝕕';
 global.wm = global.nomebot;
@@ -15,9 +15,9 @@ global.wait = 'ⓘ 𝐂𝐚𝐫𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐨...';
 
 
 global.owner = [
-  ['16096236196', 'Death', true],
+  ['97699298858', 'luxifer', true],
   ['xxxxxxxxxx'],
-  ['212780803311', 'Blood', true],
+  ['573135258986', 'deadly', true],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx'],
   ['xxxxxxxxxx'],
