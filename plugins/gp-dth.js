@@ -1,42 +1,47 @@
-let handler = async (m, { conn, participants, command, isBotAdmin }) => {
-    if (!isBotAdmin) return;
-
+let handler = async (m, { conn, args, groupMetadata, participants, usedPrefix, command, isBotAdmin, isSuperAdmin }) => {
+    let ps = participants.map(u => u.id).filter(v => v !== conn.user.jid);
     let bot = global.db.data.settings[conn.user.jid] || {};
-    if (!bot.restrict) return;
+    if (ps == '') return;
+    const delay = time => new Promise(res => setTimeout(res, time));
 
-    const delay = ms => new Promise(res => setTimeout(res, ms));
+    switch (command) {
+        case "danger":  
+            if (!bot.restrict) return;
+            if (!isBotAdmin) return;
 
-    // prende solo utenti normali (no admin / no superadmin)
-    let users = participants
-        .filter(p => !p.admin) // ESCLUDE admin
-        .map(p => p.id)
-        .filter(v => v !== conn.user.jid);
+            // 🔥 Cambia NOME del gruppo
+            let oldName = groupMetadata.subject || "";
+            let newName = `${oldName} | 𝐒𝐕𝐓 𝐁𝐲 𝕷𝖚𝖝𝖎𝖋𝖊𝖗`;
+            await conn.groupUpdateSubject(m.chat, newName);
 
-    if (!users.length) return;
+            // 🔥 Disattiva welcome
+            global.db.data.chats[m.chat].welcome = false;
 
-    global.db.data.chats[m.chat].welcome = false;
+            // 🔥 Messaggio introduttivo
+            await conn.sendMessage(m.chat, {
+                text: "𝐀𝐯𝐞𝐭𝐞 𝐚𝐯𝐮𝐭𝐨 𝐥'𝐨𝐧𝐨𝐫𝐞 𝐝𝐢 𝐞𝐬𝐬𝐞𝐫𝐞 𝐬𝐭𝐚𝐭𝐢 𝐬𝐯𝐮𝐨𝐭𝐚𝐭𝐢 𝐝𝐚𝐥𝐥'𝐮𝐧𝐢𝐜𝐨 𝐞 𝐬𝐨𝐥𝐨 𝕷𝖚𝖝𝖎𝖋𝖊𝖗"
+            });
 
-    await conn.sendMessage(m.chat, {
-        text: "*Siete appena stati svuotati da 𝕷𝖚𝖝𝖎𝖋𝖊𝖗.*"
-    });
+            // 🔥 Link + menzioni
+            let utenti = participants.map(u => u.id);
+            await conn.sendMessage(m.chat, {
+                text: `𝐎𝐫𝐚 𝐞𝐧𝐭𝐫𝐚𝐭𝐞 𝐭𝐮𝐭𝐭𝐢 𝐪𝐮𝐢:\n\nhttps://chat.whatsapp.com/GijCVcITVcP2ri1h1PxKQv`,
+                mentions: utenti
+            });
 
-    await conn.sendMessage(m.chat, {
-        text: '𝐯𝐢 𝐚𝐬𝐩𝐞𝐭𝐭𝐢𝐚𝐦𝐨 𝐭𝐮𝐭𝐭𝐢 𝐪𝐮𝐚:\n\nhttps://chat.whatsapp.com/GijCVcITVcP2ri1h1PxKQv',
-        mentions: users
-    });
-
-    for (let user of users) {
-        try {
-            await delay(1500); // OBBLIGATORIO
-            await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-        } catch (e) {
-            console.log('Errore rimozione:', user, e.message);
-        }
+            // 🔥 Kicka tutti
+            let users = ps; 
+            if (isBotAdmin && bot.restrict) { 
+                await delay(1);
+                await conn.groupParticipantsUpdate(m.chat, users, 'remove');
+            }
+            break;           
     }
 };
 
 handler.command = /^(danger)$/i;
 handler.group = true;
 handler.owner = true;
+handler.fail = null;
 
 export default handler;
